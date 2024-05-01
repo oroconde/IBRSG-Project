@@ -18,12 +18,8 @@ export class Miembros {
   @Column("date", { name: "fecha_nacimiento", nullable: true })
   fechaNacimiento: string | null;
 
-  @Column("enum", {
-    name: "genero",
-    nullable: true,
-    enum: ["Masculino", "Femenino", "Otro"],
-  })
-  genero: "Masculino" | "Femenino" | "Otro" | null;
+  @Column("varchar", { nullable: true, length: 100 })
+  genero: string | null;
 
   @Column("varchar", { name: "email", nullable: true, length: 100 })
   email: string | null;

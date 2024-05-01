@@ -6,7 +6,7 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from "typeorm";
-import { Miembros } from "./Miembros";
+import { Miembros } from "./Miembros.entity";
 
 @Index("lider_id", ["liderId"], {})
 @Entity("Grupos", { schema: "ibrsgDB" })

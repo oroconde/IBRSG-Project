@@ -1,26 +1,76 @@
-import { Injectable } from '@nestjs/common';
-import { CreateMemberDto } from '../shared/dto/create-member.dto';
-import { UpdateMemberDto } from '../shared/dto/update-member.dto';
+import { Injectable, NotFoundException, Logger } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Miembros } from 'src/shared/entities/Miembros.entity';
+import { Repository } from 'typeorm';
+
 
 @Injectable()
 export class MembersService {
-  create(createMemberDto: CreateMemberDto) {
-    return 'This action adds a new member';
+  private readonly logger = new Logger(MembersService.name);
+
+  constructor(
+    @InjectRepository(Miembros, 'ibrsgDB')
+    private miembrosRepository: Repository<Miembros>,
+  ) { }
+
+  async findAll(): Promise<Miembros[]> {
+    this.logger.log(`findAll method called.`);
+    try {
+      return await this.miembrosRepository.find();
+    } catch (error) {
+      handleError(error, this.logger);
+    }
   }
 
-  findAll() {
-    return `This action returns all members`;
+  async findOne(id: number): Promise<Miembros> {
+    this.logger.log(`findOne method called with id: ${id}.`);
+    try {
+      const member = await this.miembrosRepository.findOne({ where: { id } });
+      if (!member) {
+        throw new NotFoundException('Miembro no encontrado');
+      }
+      return member;
+    } catch (error) {
+      handleError(error, this.logger);
+    }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} member`;
+  async create(memberData: Partial<Miembros>): Promise<Miembros> {
+    this.logger.log(`create method called with data: ${JSON.stringify(memberData)}.`);
+    try {
+      const member = this.miembrosRepository.create(memberData);
+      return await this.miembrosRepository.save(member);
+    } catch (error) {
+      handleError(error, this.logger);
+    }
   }
 
-  update(id: number, updateMemberDto: UpdateMemberDto) {
-    return `This action updates a #${id} member`;
+  async update(id: number, memberData: Partial<Miembros>): Promise<Miembros> {
+    this.logger.log(`update method called with id: ${id} and data: ${JSON.stringify(memberData)}.`);
+    try {
+      await this.miembrosRepository.update(id, memberData);
+      const member = await this.miembrosRepository.findOne({ where: { id } });
+      if (!member) {
+        throw new NotFoundException('Miembro no encontrado');
+      }
+      return member;
+    } catch (error) {
+      handleError(error, this.logger);
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} member`;
+  async remove(id: number): Promise<void> {
+    this.logger.log(`remove method called with id: ${id}.`);
+    try {
+      const result = await this.miembrosRepository.delete(id);
+      if (result.affected === 0) {
+        throw new NotFoundException('Miembro no encontrado');
+      }
+    } catch (error) {
+      handleError(error, this.logger);
+    }
   }
+}
+function handleError(error: any, logger: Logger) {
+  throw new Error('Function not implemented.');
 }

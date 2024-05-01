@@ -6,7 +6,7 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from "typeorm";
-import { Miembros } from "./Miembros";
+import { Miembros } from "./Miembros.entity";
 import { Roles } from "./Roles";
 
 @Index("miembro_id", ["miembroId"], {})
