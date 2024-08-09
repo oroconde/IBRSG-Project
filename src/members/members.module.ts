@@ -5,12 +5,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { Miembros } from 'src/shared/entities/Miembros.entity';
 
-
 @Module({
   imports: [
     ConfigModule.forRoot(),
-    TypeOrmModule.forFeature([Miembros], 'ibrsgDB')],
+    TypeOrmModule.forFeature([Miembros], 'ibrsgDB'),
+  ],
   controllers: [MembersController],
   providers: [MembersService],
 })
-export class MembersModule { }
+export class MembersModule {}

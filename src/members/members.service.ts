@@ -3,7 +3,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Miembros } from 'src/shared/entities/Miembros.entity';
 import { Repository } from 'typeorm';
 
-
 @Injectable()
 export class MembersService {
   private readonly logger = new Logger(MembersService.name);
@@ -11,7 +10,7 @@ export class MembersService {
   constructor(
     @InjectRepository(Miembros, 'ibrsgDB')
     private miembrosRepository: Repository<Miembros>,
-  ) { }
+  ) {}
 
   async findAll(): Promise<Miembros[]> {
     this.logger.log(`findAll method called.`);
@@ -36,7 +35,9 @@ export class MembersService {
   }
 
   async create(memberData: Partial<Miembros>): Promise<Miembros> {
-    this.logger.log(`create method called with data: ${JSON.stringify(memberData)}.`);
+    this.logger.log(
+      `create method called with data: ${JSON.stringify(memberData)}.`,
+    );
     try {
       const member = this.miembrosRepository.create(memberData);
       return await this.miembrosRepository.save(member);
@@ -46,7 +47,9 @@ export class MembersService {
   }
 
   async update(id: number, memberData: Partial<Miembros>): Promise<Miembros> {
-    this.logger.log(`update method called with id: ${id} and data: ${JSON.stringify(memberData)}.`);
+    this.logger.log(
+      `update method called with id: ${id} and data: ${JSON.stringify(memberData)}.`,
+    );
     try {
       await this.miembrosRepository.update(id, memberData);
       const member = await this.miembrosRepository.findOne({ where: { id } });

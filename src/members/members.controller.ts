@@ -1,15 +1,34 @@
-import { Controller, Get, Post, Body, Param, Put, Delete, HttpCode, HttpStatus, ParseIntPipe } from '@nestjs/common';
-import { ApiTags, ApiResponse, ApiBadRequestResponse, ApiNotFoundResponse, ApiInternalServerErrorResponse, ApiParam, ApiBody, ApiOperation } from '@nestjs/swagger';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Put,
+  Delete,
+  HttpCode,
+  HttpStatus,
+  ParseIntPipe,
+} from '@nestjs/common';
+import {
+  ApiTags,
+  ApiResponse,
+  ApiBadRequestResponse,
+  ApiNotFoundResponse,
+  ApiInternalServerErrorResponse,
+  ApiParam,
+  ApiBody,
+  ApiOperation,
+} from '@nestjs/swagger';
 import { MembersService } from './members.service';
 import { Miembros } from 'src/shared/entities/Miembros.entity';
 import { CreateMemberDto } from 'src/shared/dto/create-member.dto';
 import { UpdateMemberDto } from '../shared/dto/update-member.dto';
 
-
 @Controller('miembros')
 @ApiTags('miembros')
 export class MembersController {
-  constructor(private readonly membersService: MembersService) { }
+  constructor(private readonly membersService: MembersService) {}
 
   @Get()
   @ApiOperation({ summary: 'Obtener todos los miembros' })
@@ -32,7 +51,11 @@ export class MembersController {
   @Post()
   @ApiOperation({ summary: 'Crear un nuevo miembro' })
   @ApiBody({ type: CreateMemberDto })
-  @ApiResponse({ status: 201, description: 'Creado exitosamente', type: Miembros })
+  @ApiResponse({
+    status: 201,
+    description: 'Creado exitosamente',
+    type: Miembros,
+  })
   @ApiBadRequestResponse({ description: 'Solicitud incorrecta' })
   @ApiInternalServerErrorResponse({ description: 'Error interno del servidor' })
   @HttpCode(HttpStatus.CREATED)
@@ -48,7 +71,10 @@ export class MembersController {
   @ApiNotFoundResponse({ description: 'Miembro no encontrado' })
   @ApiBadRequestResponse({ description: 'Solicitud incorrecta' })
   @ApiInternalServerErrorResponse({ description: 'Error interno del servidor' })
-  async update(@Param('id', ParseIntPipe) id: number, @Body() UpdateMemberDto: UpdateMemberDto): Promise<Miembros> {
+  async update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() UpdateMemberDto: UpdateMemberDto,
+  ): Promise<Miembros> {
     return this.membersService.update(id, UpdateMemberDto);
   }
 
