@@ -1,14 +1,14 @@
 import { Module } from '@nestjs/common';
-import { MembersService } from './members.service';
-import { MembersController } from './members.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
-import { Miembros } from 'src/shared/entities/Miembros.entity';
+import { Members } from 'src/shared/entities/Members';
+import { MembersService } from './members.service';
+import { MembersController } from './members.controller';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
-    TypeOrmModule.forFeature([Miembros], 'ibrsgDB'),
+    TypeOrmModule.forFeature([Members], 'ibrsgdb'),
   ],
   controllers: [MembersController],
   providers: [MembersService],

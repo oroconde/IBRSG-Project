@@ -5,21 +5,41 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from "typeorm";
-import { MembersRoles } from "./MembersRoles";
 import { RolesPermissions } from "./RolesPermissions";
 
-@Index("roles_pkey", ["roleId"], { unique: true })
-@Entity("roles", { schema: "congregation" })
-export class Roles {
-  @PrimaryGeneratedColumn({ type: "integer", name: "role_id" })
-  roleId: number;
+@Index("screens_pkey", ["screenId"], { unique: true })
+@Entity("screens", { schema: "congregation" })
+export class Screens {
+  @PrimaryGeneratedColumn({ type: "integer", name: "screen_id" })
+  screenId: number;
 
   @Column("character varying", {
-    name: "role_description",
+    name: "screen_name",
     nullable: true,
     length: 255,
   })
-  roleDescription: string | null;
+  screenName: string | null;
+
+  @Column("character varying", {
+    name: "screen_path",
+    nullable: true,
+    length: 100,
+  })
+  screenPath: string | null;
+
+  @Column("character varying", {
+    name: "screen_icon",
+    nullable: true,
+    length: 100,
+  })
+  screenIcon: string | null;
+
+  @Column("boolean", {
+    name: "screen_menu_element",
+    nullable: true,
+    default: () => "false",
+  })
+  screenMenuElement: boolean | null;
 
   @Column("timestamp with time zone", {
     name: "audit_creation_date",
@@ -28,8 +48,8 @@ export class Roles {
   })
   auditCreationDate: Date | null;
 
-  @Column("integer", { name: "audit_creation_user", nullable: true })
-  auditCreationUser: number | null;
+  @Column("integer", { name: "audit_creation_user" })
+  auditCreationUser: number;
 
   @Column("timestamp with time zone", {
     name: "audit_update_date",
@@ -57,12 +77,9 @@ export class Roles {
   })
   activeRecord: boolean | null;
 
-  @OneToMany(() => MembersRoles, (membersRoles) => membersRoles.role)
-  membersRoles: MembersRoles[];
-
   @OneToMany(
     () => RolesPermissions,
-    (rolesPermissions) => rolesPermissions.role
+    (rolesPermissions) => rolesPermissions.screen
   )
   rolesPermissions: RolesPermissions[];
 }

@@ -1,25 +1,17 @@
-import {
-  Column,
-  Entity,
-  Index,
-  OneToMany,
-  PrimaryGeneratedColumn,
-} from "typeorm";
-import { MembersRoles } from "./MembersRoles";
-import { RolesPermissions } from "./RolesPermissions";
+import { Column, Entity, Index, PrimaryGeneratedColumn } from "typeorm";
 
-@Index("roles_pkey", ["roleId"], { unique: true })
-@Entity("roles", { schema: "congregation" })
-export class Roles {
-  @PrimaryGeneratedColumn({ type: "integer", name: "role_id" })
-  roleId: number;
+@Index("professions_pkey", ["professionId"], { unique: true })
+@Entity("professions", { schema: "demographics" })
+export class Professions {
+  @PrimaryGeneratedColumn({ type: "integer", name: "profession_id" })
+  professionId: number;
 
   @Column("character varying", {
-    name: "role_description",
+    name: "profession_name",
     nullable: true,
-    length: 255,
+    length: 30,
   })
-  roleDescription: string | null;
+  professionName: string | null;
 
   @Column("timestamp with time zone", {
     name: "audit_creation_date",
@@ -56,13 +48,4 @@ export class Roles {
     default: () => "true",
   })
   activeRecord: boolean | null;
-
-  @OneToMany(() => MembersRoles, (membersRoles) => membersRoles.role)
-  membersRoles: MembersRoles[];
-
-  @OneToMany(
-    () => RolesPermissions,
-    (rolesPermissions) => rolesPermissions.role
-  )
-  rolesPermissions: RolesPermissions[];
 }

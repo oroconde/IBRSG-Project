@@ -1,25 +1,15 @@
-import {
-  Column,
-  Entity,
-  Index,
-  OneToMany,
-  PrimaryGeneratedColumn,
-} from "typeorm";
-import { MembersRoles } from "./MembersRoles";
-import { RolesPermissions } from "./RolesPermissions";
+import { Column, Entity, Index, JoinColumn, ManyToOne } from "typeorm";
+import { Groups } from "./Groups";
+import { Members } from "./Members";
 
-@Index("roles_pkey", ["roleId"], { unique: true })
-@Entity("roles", { schema: "congregation" })
-export class Roles {
-  @PrimaryGeneratedColumn({ type: "integer", name: "role_id" })
-  roleId: number;
+@Index("members_groups_pkey", ["groupId", "memberId"], { unique: true })
+@Entity("members_groups", { schema: "congregation" })
+export class MembersGroups {
+  @Column("integer", { primary: true, name: "member_id" })
+  memberId: number;
 
-  @Column("character varying", {
-    name: "role_description",
-    nullable: true,
-    length: 255,
-  })
-  roleDescription: string | null;
+  @Column("integer", { primary: true, name: "group_id" })
+  groupId: number;
 
   @Column("timestamp with time zone", {
     name: "audit_creation_date",
@@ -57,12 +47,11 @@ export class Roles {
   })
   activeRecord: boolean | null;
 
-  @OneToMany(() => MembersRoles, (membersRoles) => membersRoles.role)
-  membersRoles: MembersRoles[];
+  @ManyToOne(() => Groups, (groups) => groups.membersGroups)
+  @JoinColumn([{ name: "group_id", referencedColumnName: "groupId" }])
+  group: Groups;
 
-  @OneToMany(
-    () => RolesPermissions,
-    (rolesPermissions) => rolesPermissions.role
-  )
-  rolesPermissions: RolesPermissions[];
+  @ManyToOne(() => Members, (members) => members.membersGroups)
+  @JoinColumn([{ name: "member_id", referencedColumnName: "memberId" }])
+  member: Members;
 }

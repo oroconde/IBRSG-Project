@@ -3,13 +3,13 @@ import {
   Get,
   Post,
   Body,
+  Patch,
   Param,
-  Put,
   Delete,
-  HttpCode,
-  HttpStatus,
-  ParseIntPipe,
+  Query,
 } from '@nestjs/common';
+import { MembersService } from './members.service';
+
 import {
   ApiTags,
   ApiResponse,
@@ -19,73 +19,95 @@ import {
   ApiParam,
   ApiBody,
   ApiOperation,
+  ApiQuery,
 } from '@nestjs/swagger';
-import { MembersService } from './members.service';
-import { Miembros } from 'src/shared/entities/Miembros.entity';
-import { CreateMemberDto } from 'src/shared/dto/create-member.dto';
-import { UpdateMemberDto } from '../shared/dto/update-member.dto';
+import {
+  CreateMemberDto,
+  UpdateMemberDto,
+} from './dto-members/create-member.dto';
 
-@Controller('miembros')
-@ApiTags('miembros')
+@ApiTags('members')
+@Controller('members')
 export class MembersController {
   constructor(private readonly membersService: MembersService) {}
 
-  @Get()
-  @ApiOperation({ summary: 'Obtener todos los miembros' })
-  @ApiResponse({ status: 200, description: 'OK', type: [Miembros] })
-  @ApiInternalServerErrorResponse({ description: 'Error interno del servidor' })
-  async findAll(): Promise<Miembros[]> {
-    return this.membersService.findAll();
-  }
-
-  @Get(':id')
-  @ApiOperation({ summary: 'Obtener un miembro por ID' })
-  @ApiParam({ name: 'id', description: 'ID del miembro' })
-  @ApiResponse({ status: 200, description: 'OK', type: Miembros })
-  @ApiNotFoundResponse({ description: 'Miembro no encontrado' })
-  @ApiInternalServerErrorResponse({ description: 'Error interno del servidor' })
-  async findOne(@Param('id', ParseIntPipe) id: number): Promise<Miembros> {
-    return this.membersService.findOne(id);
-  }
-
-  @Post()
-  @ApiOperation({ summary: 'Crear un nuevo miembro' })
+  @ApiOperation({ summary: 'Create a new member' })
   @ApiBody({ type: CreateMemberDto })
-  @ApiResponse({
-    status: 201,
-    description: 'Creado exitosamente',
-    type: Miembros,
+  @ApiResponse({ status: 201, description: 'Member successfully created.' })
+  @ApiBadRequestResponse({
+    description:
+      'Bad Request. Member with the same document number already exists.',
   })
-  @ApiBadRequestResponse({ description: 'Solicitud incorrecta' })
-  @ApiInternalServerErrorResponse({ description: 'Error interno del servidor' })
-  @HttpCode(HttpStatus.CREATED)
-  async create(@Body() CreateMemberDto: CreateMemberDto): Promise<Miembros> {
-    return this.membersService.create(CreateMemberDto);
+  @ApiInternalServerErrorResponse({ description: 'Internal Server Error' })
+  @Post()
+  create(@Body() createMemberDto: CreateMemberDto) {
+    return this.membersService.create(createMemberDto);
   }
 
-  @Put(':id')
-  @ApiOperation({ summary: 'Actualizar un miembro existente por ID' })
-  @ApiParam({ name: 'id', description: 'ID del miembro' })
+  @ApiOperation({ summary: 'Get all members' })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    description: 'Page number',
+    example: 1,
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    description: 'Number of items per page',
+    example: 10,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'List of all members.',
+    type: [CreateMemberDto],
+  })
+  @ApiInternalServerErrorResponse({ description: 'Internal Server Error' })
+  @Get()
+  findAll(@Query('page') page: number = 1, @Query('limit') limit: number = 10) {
+    return this.membersService.findAll(page, limit);
+  }
+
+  @ApiOperation({ summary: 'Get a member by ID' })
+  @ApiParam({ name: 'id', description: 'ID of the member' })
+  @ApiResponse({
+    status: 200,
+    description: 'Member found.',
+    type: CreateMemberDto,
+  })
+  @ApiNotFoundResponse({ description: 'Member not found' })
+  @ApiInternalServerErrorResponse({ description: 'Internal Server Error' })
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.membersService.findOne(+id);
+  }
+
+  @ApiOperation({ summary: 'Update a member by ID' })
+  @ApiParam({ name: 'id', description: 'ID of the member' })
   @ApiBody({ type: UpdateMemberDto })
-  @ApiResponse({ status: 200, description: 'OK', type: Miembros })
-  @ApiNotFoundResponse({ description: 'Miembro no encontrado' })
-  @ApiBadRequestResponse({ description: 'Solicitud incorrecta' })
-  @ApiInternalServerErrorResponse({ description: 'Error interno del servidor' })
-  async update(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() UpdateMemberDto: UpdateMemberDto,
-  ): Promise<Miembros> {
-    return this.membersService.update(id, UpdateMemberDto);
+  @ApiResponse({
+    status: 200,
+    description: 'Member successfully updated.',
+    type: CreateMemberDto,
+  })
+  @ApiNotFoundResponse({ description: 'Member not found' })
+  @ApiBadRequestResponse({ description: 'Bad Request' })
+  @ApiInternalServerErrorResponse({ description: 'Internal Server Error' })
+  @Patch(':id')
+  update(@Param('id') id: string, @Body() updateMemberDto: UpdateMemberDto) {
+    return this.membersService.update(+id, updateMemberDto);
   }
 
+  @ApiOperation({ summary: 'Soft delete a member by ID' })
+  @ApiParam({ name: 'id', description: 'ID of the member' })
+  @ApiResponse({
+    status: 200,
+    description: 'Member successfully soft deleted.',
+  })
+  @ApiNotFoundResponse({ description: 'Member not found or already inactive' })
+  @ApiInternalServerErrorResponse({ description: 'Internal Server Error' })
   @Delete(':id')
-  @ApiOperation({ summary: 'Eliminar un miembro por ID' })
-  @ApiParam({ name: 'id', description: 'ID del miembro' })
-  @ApiResponse({ status: 204, description: 'Eliminado exitosamente' })
-  @ApiNotFoundResponse({ description: 'Miembro no encontrado' })
-  @ApiInternalServerErrorResponse({ description: 'Error interno del servidor' })
-  @HttpCode(HttpStatus.NO_CONTENT)
-  async remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
-    await this.membersService.remove(id);
+  softDelete(@Param('id') id: string) {
+    return this.membersService.softDelete(+id);
   }
 }

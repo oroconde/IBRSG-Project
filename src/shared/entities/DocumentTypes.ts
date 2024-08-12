@@ -5,21 +5,20 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from "typeorm";
-import { MembersRoles } from "./MembersRoles";
-import { RolesPermissions } from "./RolesPermissions";
+import { Members } from "./Members";
 
-@Index("roles_pkey", ["roleId"], { unique: true })
-@Entity("roles", { schema: "congregation" })
-export class Roles {
-  @PrimaryGeneratedColumn({ type: "integer", name: "role_id" })
-  roleId: number;
+@Index("document_types_pkey", ["documentTypeId"], { unique: true })
+@Entity("document_types", { schema: "congregation" })
+export class DocumentTypes {
+  @PrimaryGeneratedColumn({ type: "integer", name: "document_type_id" })
+  documentTypeId: number;
 
   @Column("character varying", {
-    name: "role_description",
+    name: "document_type_name",
     nullable: true,
-    length: 255,
+    length: 100,
   })
-  roleDescription: string | null;
+  documentTypeName: string | null;
 
   @Column("timestamp with time zone", {
     name: "audit_creation_date",
@@ -57,12 +56,6 @@ export class Roles {
   })
   activeRecord: boolean | null;
 
-  @OneToMany(() => MembersRoles, (membersRoles) => membersRoles.role)
-  membersRoles: MembersRoles[];
-
-  @OneToMany(
-    () => RolesPermissions,
-    (rolesPermissions) => rolesPermissions.role
-  )
-  rolesPermissions: RolesPermissions[];
+  @OneToMany(() => Members, (members) => members.documentType)
+  members: Members[];
 }

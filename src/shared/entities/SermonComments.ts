@@ -2,24 +2,24 @@ import {
   Column,
   Entity,
   Index,
-  OneToMany,
+  JoinColumn,
+  ManyToOne,
   PrimaryGeneratedColumn,
 } from "typeorm";
-import { MembersRoles } from "./MembersRoles";
-import { RolesPermissions } from "./RolesPermissions";
+import { Members } from "./Members";
+import { Sermons } from "./Sermons";
 
-@Index("roles_pkey", ["roleId"], { unique: true })
-@Entity("roles", { schema: "congregation" })
-export class Roles {
-  @PrimaryGeneratedColumn({ type: "integer", name: "role_id" })
-  roleId: number;
+@Index("sermon_comments_pkey", ["sermonCommentId"], { unique: true })
+@Entity("sermon_comments", { schema: "congregation" })
+export class SermonComments {
+  @PrimaryGeneratedColumn({ type: "integer", name: "sermon_comment_id" })
+  sermonCommentId: number;
 
-  @Column("character varying", {
-    name: "role_description",
-    nullable: true,
-    length: 255,
-  })
-  roleDescription: string | null;
+  @Column("character varying", { name: "comment", length: 256 })
+  comment: string;
+
+  @Column("date", { name: "comment_date", nullable: true })
+  commentDate: string | null;
 
   @Column("timestamp with time zone", {
     name: "audit_creation_date",
@@ -57,12 +57,11 @@ export class Roles {
   })
   activeRecord: boolean | null;
 
-  @OneToMany(() => MembersRoles, (membersRoles) => membersRoles.role)
-  membersRoles: MembersRoles[];
+  @ManyToOne(() => Members, (members) => members.sermonComments)
+  @JoinColumn([{ name: "member_id", referencedColumnName: "memberId" }])
+  member: Members;
 
-  @OneToMany(
-    () => RolesPermissions,
-    (rolesPermissions) => rolesPermissions.role
-  )
-  rolesPermissions: RolesPermissions[];
+  @ManyToOne(() => Sermons, (sermons) => sermons.sermonComments)
+  @JoinColumn([{ name: "sermon_id", referencedColumnName: "sermonId" }])
+  sermon: Sermons;
 }

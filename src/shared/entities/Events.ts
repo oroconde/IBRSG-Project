@@ -5,21 +5,22 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from "typeorm";
-import { MembersRoles } from "./MembersRoles";
-import { RolesPermissions } from "./RolesPermissions";
+import { Attendances } from "./Attendances";
 
-@Index("roles_pkey", ["roleId"], { unique: true })
-@Entity("roles", { schema: "congregation" })
-export class Roles {
-  @PrimaryGeneratedColumn({ type: "integer", name: "role_id" })
-  roleId: number;
+@Index("events_pkey", ["eventId"], { unique: true })
+@Entity("events", { schema: "congregation" })
+export class Events {
+  @PrimaryGeneratedColumn({ type: "integer", name: "event_id" })
+  eventId: number;
 
-  @Column("character varying", {
-    name: "role_description",
-    nullable: true,
-    length: 255,
-  })
-  roleDescription: string | null;
+  @Column("character varying", { name: "event_name", length: 100 })
+  eventName: string;
+
+  @Column("date", { name: "date", nullable: true })
+  date: string | null;
+
+  @Column("text", { name: "description", nullable: true })
+  description: string | null;
 
   @Column("timestamp with time zone", {
     name: "audit_creation_date",
@@ -57,12 +58,6 @@ export class Roles {
   })
   activeRecord: boolean | null;
 
-  @OneToMany(() => MembersRoles, (membersRoles) => membersRoles.role)
-  membersRoles: MembersRoles[];
-
-  @OneToMany(
-    () => RolesPermissions,
-    (rolesPermissions) => rolesPermissions.role
-  )
-  rolesPermissions: RolesPermissions[];
+  @OneToMany(() => Attendances, (attendances) => attendances.event)
+  attendances: Attendances[];
 }

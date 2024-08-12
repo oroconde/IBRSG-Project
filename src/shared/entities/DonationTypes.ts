@@ -5,21 +5,16 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from "typeorm";
-import { MembersRoles } from "./MembersRoles";
-import { RolesPermissions } from "./RolesPermissions";
+import { Donations } from "./Donations";
 
-@Index("roles_pkey", ["roleId"], { unique: true })
-@Entity("roles", { schema: "congregation" })
-export class Roles {
-  @PrimaryGeneratedColumn({ type: "integer", name: "role_id" })
-  roleId: number;
+@Index("donation_types_pkey", ["donationTypeId"], { unique: true })
+@Entity("donation_types", { schema: "congregation" })
+export class DonationTypes {
+  @PrimaryGeneratedColumn({ type: "integer", name: "donation_type_id" })
+  donationTypeId: number;
 
-  @Column("character varying", {
-    name: "role_description",
-    nullable: true,
-    length: 255,
-  })
-  roleDescription: string | null;
+  @Column("character varying", { name: "donation_type", length: 100 })
+  donationType: string;
 
   @Column("timestamp with time zone", {
     name: "audit_creation_date",
@@ -57,12 +52,6 @@ export class Roles {
   })
   activeRecord: boolean | null;
 
-  @OneToMany(() => MembersRoles, (membersRoles) => membersRoles.role)
-  membersRoles: MembersRoles[];
-
-  @OneToMany(
-    () => RolesPermissions,
-    (rolesPermissions) => rolesPermissions.role
-  )
-  rolesPermissions: RolesPermissions[];
+  @OneToMany(() => Donations, (donations) => donations.donationType)
+  donations: Donations[];
 }

@@ -5,7 +5,7 @@ CREATE SCHEMA IF NOT EXISTS congregation;
 CREATE SCHEMA IF NOT EXISTS ccore;
 CREATE SCHEMA IF NOT EXISTS demographics;
 
-CREATE TABLE congregation.document_type (
+CREATE TABLE congregation.document_types (
     document_type_id SERIAL PRIMARY KEY,
     document_type_name VARCHAR(100) NULL,
     audit_creation_date TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NULL,
@@ -15,23 +15,6 @@ CREATE TABLE congregation.document_type (
     audit_deletion_date TIMESTAMPTZ NULL,
     audit_deletion_user INT NULL,
     active_record BOOLEAN DEFAULT TRUE
-);
-
-CREATE TABLE congregation.tokens_members (
-    token_member_id SERIAL PRIMARY KEY,
-    member_id INT NULL,
-    token_member VARCHAR(255) NULL,
-    creation_date TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NULL,
-    expiration_date TIMESTAMPTZ NULL,
-    token_type VARCHAR(255) NULL,
-    audit_creation_date TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NULL,
-    audit_creation_user INT NULL,
-    audit_update_date TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NULL,
-    audit_update_user INT NULL,
-    audit_deletion_date TIMESTAMPTZ NULL,
-    audit_deletion_user INT NULL,
-    active_record BOOLEAN DEFAULT TRUE,
-    CONSTRAINT fk_tokens_member FOREIGN KEY (member_id) REFERENCES congregation.members(member_id)
 );
 
 -- Crear tablas en el esquema congregation
@@ -56,7 +39,7 @@ CREATE TABLE congregation.members (
     audit_deletion_date TIMESTAMPTZ NULL,
     audit_deletion_user INT NULL,
     active_record BOOLEAN DEFAULT TRUE,
-    CONSTRAINT fk_document_type FOREIGN KEY (document_type_id) REFERENCES congregation.document_type(document_type_id)
+    CONSTRAINT fk_document_types FOREIGN KEY (document_type_id) REFERENCES congregation.document_types(document_type_id)
 );
 
 CREATE TABLE congregation.preachers (
@@ -73,6 +56,26 @@ CREATE TABLE congregation.preachers (
         FOREIGN KEY (member_id)
         REFERENCES congregation.members(member_id)
 );
+
+
+
+CREATE TABLE congregation.tokens_members (
+    token_member_id SERIAL PRIMARY KEY,
+    member_id INT NULL,
+    token_member VARCHAR(255) NULL,
+    creation_date TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NULL,
+    expiration_date TIMESTAMPTZ NULL,
+    token_type VARCHAR(255) NULL,
+    audit_creation_date TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NULL,
+    audit_creation_user INT NULL,
+    audit_update_date TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NULL,
+    audit_update_user INT NULL,
+    audit_deletion_date TIMESTAMPTZ NULL,
+    audit_deletion_user INT NULL,
+    active_record BOOLEAN DEFAULT TRUE,
+    CONSTRAINT fk_tokens_member FOREIGN KEY (member_id) REFERENCES congregation.members(member_id)
+);
+
 
 CREATE TABLE congregation.topics (
     topic_id SERIAL PRIMARY KEY,
@@ -199,10 +202,10 @@ CREATE TABLE congregation.sermon_series (
         REFERENCES congregation.categories(category_id)
 );
 
-CREATE TABLE congregation.sermons_series (
+CREATE TABLE congregation.sermon_series_association (
     id SERIAL PRIMARY KEY,
     sermon_id INT NOT NULL,
-    sermon_serie_id INT NOT NULL,
+    sermon_series_id INT NOT NULL,
     audit_creation_date TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     audit_creation_user INT NULL,
     audit_update_date TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
@@ -214,7 +217,7 @@ CREATE TABLE congregation.sermons_series (
         FOREIGN KEY (sermon_id)
         REFERENCES congregation.sermons(sermon_id),
     CONSTRAINT fk_sermon_series
-        FOREIGN KEY (sermon_serie_id)
+        FOREIGN KEY (sermon_series_id) 
         REFERENCES congregation.sermon_series(sermon_serie_id)
 );
 

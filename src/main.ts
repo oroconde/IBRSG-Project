@@ -9,7 +9,6 @@ async function bootstrap() {
     .setTitle('API Iglesia Reformada Bautista Sublime gracia')
     .setDescription('Proyecto Donación')
     .setVersion('1.0')
-    .addTag('Documentación')
     .build();
   const document = SwaggerModule.createDocument(app, options);
   SwaggerModule.setup('api', app, document);
