@@ -3,10 +3,10 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
   Query,
+  Put,
 } from '@nestjs/common';
 import { MembersService } from './members.service';
 
@@ -31,6 +31,7 @@ import {
 export class MembersController {
   constructor(private readonly membersService: MembersService) {}
 
+  @Post()
   @ApiOperation({ summary: 'Create a new member' })
   @ApiBody({ type: CreateMemberDto })
   @ApiResponse({ status: 201, description: 'Member successfully created.' })
@@ -39,11 +40,11 @@ export class MembersController {
       'Bad Request. Member with the same document number already exists.',
   })
   @ApiInternalServerErrorResponse({ description: 'Internal Server Error' })
-  @Post()
-  create(@Body() createMemberDto: CreateMemberDto) {
+  async create(@Body() createMemberDto: CreateMemberDto) {
     return this.membersService.create(createMemberDto);
   }
 
+  @Get()
   @ApiOperation({ summary: 'Get all members' })
   @ApiQuery({
     name: 'page',
@@ -63,11 +64,14 @@ export class MembersController {
     type: [CreateMemberDto],
   })
   @ApiInternalServerErrorResponse({ description: 'Internal Server Error' })
-  @Get()
-  findAll(@Query('page') page: number = 1, @Query('limit') limit: number = 10) {
+  async findAll(
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
+  ) {
     return this.membersService.findAll(page, limit);
   }
 
+  @Get(':id')
   @ApiOperation({ summary: 'Get a member by ID' })
   @ApiParam({ name: 'id', description: 'ID of the member' })
   @ApiResponse({
@@ -77,11 +81,11 @@ export class MembersController {
   })
   @ApiNotFoundResponse({ description: 'Member not found' })
   @ApiInternalServerErrorResponse({ description: 'Internal Server Error' })
-  @Get(':id')
   findOne(@Param('id') id: string) {
     return this.membersService.findOne(+id);
   }
 
+  @Put(':id')
   @ApiOperation({ summary: 'Update a member by ID' })
   @ApiParam({ name: 'id', description: 'ID of the member' })
   @ApiBody({ type: UpdateMemberDto })
@@ -93,11 +97,14 @@ export class MembersController {
   @ApiNotFoundResponse({ description: 'Member not found' })
   @ApiBadRequestResponse({ description: 'Bad Request' })
   @ApiInternalServerErrorResponse({ description: 'Internal Server Error' })
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateMemberDto: UpdateMemberDto) {
+  async update(
+    @Param('id') id: string,
+    @Body() updateMemberDto: UpdateMemberDto,
+  ) {
     return this.membersService.update(+id, updateMemberDto);
   }
 
+  @Delete(':id')
   @ApiOperation({ summary: 'Soft delete a member by ID' })
   @ApiParam({ name: 'id', description: 'ID of the member' })
   @ApiResponse({
@@ -106,8 +113,7 @@ export class MembersController {
   })
   @ApiNotFoundResponse({ description: 'Member not found or already inactive' })
   @ApiInternalServerErrorResponse({ description: 'Internal Server Error' })
-  @Delete(':id')
-  softDelete(@Param('id') id: string) {
+  async softDelete(@Param('id') id: string) {
     return this.membersService.softDelete(+id);
   }
 }

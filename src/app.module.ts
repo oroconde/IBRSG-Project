@@ -3,12 +3,14 @@ import { AppController } from './app.controller';
 import { DatabaseModule } from './database/database.module';
 import { MembersModule } from './members/members.module';
 import { ConfigModule } from '@nestjs/config';
+import { SermonsModule } from './sermons/sermons.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     DatabaseModule,
     MembersModule,
+    SermonsModule,
   ],
   controllers: [AppController],
   providers: [],

@@ -13,6 +13,9 @@ import {
   UpdateMemberDto,
 } from './dto-members/create-member.dto';
 import { ErrorHandler } from 'src/shared/utils/handler-errors';
+import { ApiResponseDTO } from 'src/shared/commond/common-responses.dto';
+import { PaginationResponseDTO } from 'src/shared/commond/pagination.dto';
+import { SuccessResponse } from 'src/shared/commond/format-success-response';
 
 @Injectable()
 export class MembersService {
@@ -50,22 +53,68 @@ export class MembersService {
   }
 
   async findAll(
-    page: number,
-    limit: number,
-  ): Promise<{ data: Members[]; count: number }> {
+    page: number = 1,
+    limit: number = 10,
+  ): Promise<SuccessResponse<Members[]>> {
     this.logger.log(
       `Entered findAll method in MembersService with page: ${page} and limit: ${limit}`,
     );
+
     try {
-      const [data, count] = await this.membersRepository.findAndCount({
-        skip: (page - 1) * limit,
+      const offset = (page - 1) * limit;
+
+      // Obtener los datos paginados y el número total de elementos
+      const [data, totalItems] = await this.membersRepository.findAndCount({
+        skip: offset,
         take: limit,
       });
-      return { data, count };
+
+      // Calcular el número total de páginas
+      const totalPages = Math.ceil(totalItems / limit);
+
+      // Crear el objeto de respuesta de paginación
+      const pagination: PaginationResponseDTO = {
+        currentPage: page,
+        totalPages: totalPages,
+        totalItems: totalItems,
+        limit: limit,
+        offset: offset,
+      };
+
+      // Devolver la respuesta completa utilizando SuccessResponse
+      return new SuccessResponse<Members[]>(
+        data,
+        `Retrieved ${data.length} members`,
+        200,
+        'OK',
+        pagination,
+      );
     } catch (error) {
       ErrorHandler.handleServiceError(error);
     }
   }
+  // async findAll(
+  //   page: number,
+  //   limit: number,
+  // ): Promise<ApiResponseDTO<Members[]>> {
+  //   this.logger.log(
+  //     `Entered findAll method in MembersService with page: ${page} and limit: ${limit}`,
+  //   );
+  //   try {
+  //     const [data, count] = await this.membersRepository.findAndCount({
+  //       skip: (page - 1) * limit,
+  //       take: limit,
+  //     });
+  //     return {
+  //       data,
+  //       description: `Retrieved ${count} members`,
+  //       statusCode: 200,
+  //       statusText: 'OK',
+  //     };
+  //   } catch (error) {
+  //     ErrorHandler.handleServiceError(error);
+  //   }
+  // }
 
   async findOne(id: number): Promise<Members> {
     this.logger.log(`Entered findOne method in MembersService with id: ${id}`);
