@@ -20,13 +20,21 @@ import {
   ApiBody,
   ApiOperation,
   ApiQuery,
+  ApiConflictResponse,
 } from '@nestjs/swagger';
 import {
   CreateMemberDto,
   UpdateMemberDto,
 } from './dto-members/create-member.dto';
+import {
+  createUpdateMemberResponseDTO,
+  DeleteMemberResponseDTO,
+  MemberResponseDTO,
+  MembersResponsesDTO,
+} from './dto-members/member-responses.dto';
+import { SuccessResponse } from 'src/shared/commond/format-success-response';
 
-@ApiTags('members')
+@ApiTags('Members')
 @Controller('members')
 export class MembersController {
   constructor(private readonly membersService: MembersService) {}
@@ -34,13 +42,22 @@ export class MembersController {
   @Post()
   @ApiOperation({ summary: 'Create a new member' })
   @ApiBody({ type: CreateMemberDto })
-  @ApiResponse({ status: 201, description: 'Member successfully created.' })
+  @ApiResponse({
+    status: 201,
+    description: 'Member successfully created.',
+    type: createUpdateMemberResponseDTO,
+  })
   @ApiBadRequestResponse({
+    description: 'Bad Request',
+  })
+  @ApiConflictResponse({
     description:
-      'Bad Request. Member with the same document number already exists.',
+      'Conflic: Member with the same document number already exists.',
   })
   @ApiInternalServerErrorResponse({ description: 'Internal Server Error' })
-  async create(@Body() createMemberDto: CreateMemberDto) {
+  async create(
+    @Body() createMemberDto: CreateMemberDto,
+  ): Promise<SuccessResponse<CreateMemberDto>> {
     return this.membersService.create(createMemberDto);
   }
 
@@ -61,13 +78,10 @@ export class MembersController {
   @ApiResponse({
     status: 200,
     description: 'List of all members.',
-    type: [CreateMemberDto],
+    type: MembersResponsesDTO,
   })
   @ApiInternalServerErrorResponse({ description: 'Internal Server Error' })
-  async findAll(
-    @Query('page') page: number = 1,
-    @Query('limit') limit: number = 10,
-  ) {
+  findAll(@Query('page') page: number = 1, @Query('limit') limit: number = 10) {
     return this.membersService.findAll(page, limit);
   }
 
@@ -92,28 +106,29 @@ export class MembersController {
   @ApiResponse({
     status: 200,
     description: 'Member successfully updated.',
-    type: CreateMemberDto,
+    type: MemberResponseDTO,
   })
   @ApiNotFoundResponse({ description: 'Member not found' })
   @ApiBadRequestResponse({ description: 'Bad Request' })
   @ApiInternalServerErrorResponse({ description: 'Internal Server Error' })
-  async update(
+  update(
     @Param('id') id: string,
     @Body() updateMemberDto: UpdateMemberDto,
-  ) {
+  ): Promise<SuccessResponse<UpdateMemberDto>> {
     return this.membersService.update(+id, updateMemberDto);
   }
 
   @Delete(':id')
   @ApiOperation({ summary: 'Soft delete a member by ID' })
-  @ApiParam({ name: 'id', description: 'ID of the member' })
+  @ApiParam({ name: 'id', description: 'ID of the member', example: 18 })
   @ApiResponse({
     status: 200,
     description: 'Member successfully soft deleted.',
+    type: DeleteMemberResponseDTO,
   })
   @ApiNotFoundResponse({ description: 'Member not found or already inactive' })
   @ApiInternalServerErrorResponse({ description: 'Internal Server Error' })
-  async softDelete(@Param('id') id: string) {
+  softDelete(@Param('id') id: string): Promise<DeleteMemberResponseDTO> {
     return this.membersService.softDelete(+id);
   }
 }

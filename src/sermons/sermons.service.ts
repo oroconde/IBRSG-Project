@@ -19,16 +19,16 @@ export class SermonsService {
   async getSermonsDetailedReport({
     preacherName,
     categoryName,
-    startDate,
-    endDate,
+    // startDate,
+    // endDate,
     withComments = false,
     page = 1,
     limit = 10,
   }: {
     preacherName?: string;
     categoryName?: string;
-    startDate?: string;
-    endDate?: string;
+    // startDate?: string;
+    // endDate?: string;
     withComments?: boolean;
     page?: number;
     limit?: number;
@@ -45,7 +45,7 @@ export class SermonsService {
       // Filtrar por nombre del predicador
       if (preacherName) {
         queryBuilder.andWhere(
-          "CONCAT(preacherMember.firstName, ' ', preacherMember.lastName) ILIKE :preacherName",
+          "CONCAT(preacherMember.firstName,' ', preacherMember.lastName) ILIKE :preacherName",
           { preacherName: `%${preacherName}%` },
         );
       }
@@ -57,17 +57,17 @@ export class SermonsService {
         });
       }
 
-      // Filtrar por fecha de inicio
-      if (startDate) {
-        queryBuilder.andWhere('sermon.sermon_date >= :startDate', {
-          startDate,
-        });
-      }
+      // // Filtrar por fecha de inicio
+      // if (startDate) {
+      //   queryBuilder.andWhere('sermon.sermon_date >= :startDate', {
+      //     startDate,
+      //   });
+      // }
 
-      // Filtrar por fecha de fin
-      if (endDate) {
-        queryBuilder.andWhere('sermon.sermon_date <= :endDate', { endDate });
-      }
+      // // Filtrar por fecha de fin
+      // if (endDate) {
+      //   queryBuilder.andWhere('sermon.sermon_date <= :endDate', { endDate });
+      // }
 
       // Incluir comentarios si se solicita
       if (withComments) {

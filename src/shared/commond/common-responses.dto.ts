@@ -15,7 +15,7 @@ export class ApiResponseDTO<T> {
   statusCode: number;
 
   @ApiProperty({
-    example: 'OK',
+    example: 'Ok',
   })
   statusText: string;
 }

@@ -9,6 +9,9 @@ export class SermonCommentDto {
 
   @ApiProperty({ example: 'María José' })
   memberName: string;
+
+  // @IsString({ each: true })
+  // memberName: Array<string>;
 }
 
 export class SermonDetailedReportDto {

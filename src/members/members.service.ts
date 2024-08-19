@@ -1,7 +1,7 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
-  InternalServerErrorException,
   Logger,
   NotFoundException,
 } from '@nestjs/common';
@@ -13,9 +13,10 @@ import {
   UpdateMemberDto,
 } from './dto-members/create-member.dto';
 import { ErrorHandler } from 'src/shared/utils/handler-errors';
-import { ApiResponseDTO } from 'src/shared/commond/common-responses.dto';
 import { PaginationResponseDTO } from 'src/shared/commond/pagination.dto';
 import { SuccessResponse } from 'src/shared/commond/format-success-response';
+import { ApiResponseDTO } from 'src/shared/commond/common-responses.dto';
+import { DocumentTypes } from 'src/shared/entities/DocumentTypes';
 
 @Injectable()
 export class MembersService {
@@ -24,9 +25,13 @@ export class MembersService {
   constructor(
     @InjectRepository(Members, 'ibrsgdb')
     private readonly membersRepository: Repository<Members>,
+    @InjectRepository(DocumentTypes, 'ibrsgdb')
+    private readonly documentTypesRepository: Repository<DocumentTypes>,
   ) {}
 
-  async create(createMemberDto: CreateMemberDto): Promise<Members> {
+  async create(
+    createMemberDto: CreateMemberDto,
+  ): Promise<SuccessResponse<CreateMemberDto>> {
     this.logger.log(
       `Entered create method in MembersService with data: ${JSON.stringify(createMemberDto)}`,
     );
@@ -40,14 +45,41 @@ export class MembersService {
         this.logger.warn(
           `Member with document number ${createMemberDto.documentNumber} already exists`,
         );
-        throw new BadRequestException(
+        throw new ConflictException(
           `Member with document number ${createMemberDto.documentNumber} already exists`,
         );
       }
 
-      const newMember = this.membersRepository.create(createMemberDto);
-      return await this.membersRepository.save(newMember);
+      const documentType = await this.documentTypesRepository.findOne({
+        where: { documentTypeId: createMemberDto.documentTypeId },
+      });
+
+      if (!documentType) {
+        throw new BadRequestException(
+          `Document type with ID ${createMemberDto.documentTypeId} does not exist`,
+        );
+      }
+
+      const newMember = this.membersRepository.create({
+        ...createMemberDto,
+        documentType: documentType,
+      });
+
+      const savedMember = await this.membersRepository.save(newMember);
+      // Crear el objeto de respuesta que cumpla con el tipo CreateMemberDto
+      const responseData: CreateMemberDto = {
+        ...createMemberDto,
+        documentTypeId: savedMember.documentType.documentTypeId,
+      };
+
+      return {
+        data: responseData,
+        description: 'Member successfully created',
+        statusCode: 201,
+        statusText: 'success',
+      };
     } catch (error) {
+      this.logger.error('An error occurred while creating member', error.stack);
       ErrorHandler.handleServiceError(error);
     }
   }
@@ -62,14 +94,11 @@ export class MembersService {
 
     try {
       const offset = (page - 1) * limit;
-
-      // Obtener los datos paginados y el número total de elementos
       const [data, totalItems] = await this.membersRepository.findAndCount({
         skip: offset,
         take: limit,
       });
 
-      // Calcular el número total de páginas
       const totalPages = Math.ceil(totalItems / limit);
 
       // Crear el objeto de respuesta de paginación
@@ -81,7 +110,6 @@ export class MembersService {
         offset: offset,
       };
 
-      // Devolver la respuesta completa utilizando SuccessResponse
       return new SuccessResponse<Members[]>(
         data,
         `Retrieved ${data.length} members`,
@@ -93,28 +121,6 @@ export class MembersService {
       ErrorHandler.handleServiceError(error);
     }
   }
-  // async findAll(
-  //   page: number,
-  //   limit: number,
-  // ): Promise<ApiResponseDTO<Members[]>> {
-  //   this.logger.log(
-  //     `Entered findAll method in MembersService with page: ${page} and limit: ${limit}`,
-  //   );
-  //   try {
-  //     const [data, count] = await this.membersRepository.findAndCount({
-  //       skip: (page - 1) * limit,
-  //       take: limit,
-  //     });
-  //     return {
-  //       data,
-  //       description: `Retrieved ${count} members`,
-  //       statusCode: 200,
-  //       statusText: 'OK',
-  //     };
-  //   } catch (error) {
-  //     ErrorHandler.handleServiceError(error);
-  //   }
-  // }
 
   async findOne(id: number): Promise<Members> {
     this.logger.log(`Entered findOne method in MembersService with id: ${id}`);
@@ -131,27 +137,60 @@ export class MembersService {
     }
   }
 
-  async update(id: number, updateMemberDto: UpdateMemberDto): Promise<Members> {
+  async update(
+    id: number,
+    updateMemberDto: UpdateMemberDto,
+  ): Promise<SuccessResponse<UpdateMemberDto>> {
     this.logger.log(`Entered update method in MembersService with id: ${id}`);
 
     try {
       const member = await this.membersRepository.findOne({
         where: { memberId: id, activeRecord: true },
+        relations: ['documentType'], // Asegurarse de que las relaciones necesarias estén cargadas
       });
 
       if (!member) {
         this.logger.error(`Member with ID ${id} not found`);
         throw new NotFoundException(`Member with ID ${id} not found`);
       }
-      // Aplicar manualmente los cambios del DTO
-      Object.assign(member, updateMemberDto);
-      return await this.membersRepository.save(member);
+
+      // Si el DTO contiene un nuevo documentTypeId, actualizamos la relación
+      if (updateMemberDto.documentTypeId) {
+        const documentType = await this.documentTypesRepository.findOne({
+          where: { documentTypeId: updateMemberDto.documentTypeId },
+        });
+
+        if (!documentType) {
+          throw new BadRequestException(
+            `Document type with ID ${updateMemberDto.documentTypeId} does not exist`,
+          );
+        }
+        member.documentType = documentType; // Actualizar la relación
+      }
+
+      Object.assign(member, updateMemberDto); // Aplicar los demás cambios del DTO al miembro
+      const updatedMember = await this.membersRepository.save(member);
+      const responseData: UpdateMemberDto = {
+        ...updateMemberDto,
+        documentTypeId: updatedMember.documentType.documentTypeId, // Asegurar que el ID del tipo de documento se incluya
+      };
+
+      return {
+        data: responseData,
+        description: 'Member successfully updated',
+        statusCode: 200,
+        statusText: 'OK',
+      };
     } catch (error) {
+      this.logger.error(
+        `An error occurred while updating member with ID ${id}`,
+        error.stack,
+      );
       ErrorHandler.handleServiceError(error);
     }
   }
 
-  async softDelete(id: number): Promise<void> {
+  async softDelete(id: number): Promise<ApiResponseDTO<null>> {
     this.logger.log(
       `Entered softDelete method in MembersService with id: ${id}`,
     );
@@ -171,7 +210,12 @@ export class MembersService {
       // member.auditDeletionDate = new Date();  // Opcional: Registrar la fecha de eliminación
       await this.membersRepository.save(member);
 
-      this.logger.log(`Member with ID ${id} successfully soft deleted`);
+      return {
+        data: null,
+        description: `Member with ID ${id} successfully soft deleted`,
+        statusCode: 200,
+        statusText: 'Ok',
+      };
     } catch (error) {
       ErrorHandler.handleServiceError(error);
     }

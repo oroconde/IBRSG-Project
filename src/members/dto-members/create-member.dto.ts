@@ -18,6 +18,12 @@ export class CreateMemberDto {
   documentNumber: string;
 
   @ApiProperty({
+    description: 'Type of member identification document',
+    example: 1,
+  })
+  documentTypeId: number;
+
+  @ApiProperty({
     description: 'Password of the member',
     example: 'strongpassword123',
     required: false,

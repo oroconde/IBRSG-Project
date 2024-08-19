@@ -4,7 +4,7 @@ import { SermonsService } from './sermons.service';
 import { SuccessResponse } from 'src/shared/commond/format-success-response';
 import { SermonDetailedReportDto } from './dto-semons/sermon-detailed-report.dto';
 
-@ApiTags('sermons')
+@ApiTags('Sermons')
 @Controller('sermons')
 export class SermonsController {
   constructor(private readonly sermonsService: SermonsService) {}
@@ -22,16 +22,16 @@ export class SermonsController {
     required: false,
     description: 'Filter by category name',
   })
-  @ApiQuery({
-    name: 'startDate',
-    required: false,
-    description: 'Filter by start date (YYYY-MM-DD)',
-  })
-  @ApiQuery({
-    name: 'endDate',
-    required: false,
-    description: 'Filter by end date (YYYY-MM-DD)',
-  })
+  // @ApiQuery({
+  //   name: 'startDate',
+  //   required: false,
+  //   description: 'Filter by start date (YYYY-MM-DD)',
+  // })
+  // @ApiQuery({
+  //   name: 'endDate',
+  //   required: false,
+  //   description: 'Filter by end date (YYYY-MM-DD)',
+  // })
   @ApiQuery({
     name: 'withComments',
     required: false,
@@ -59,8 +59,8 @@ export class SermonsController {
   getSermonsDetailedReport(
     @Query('preacherName') preacherName?: string,
     @Query('categoryName') categoryName?: string,
-    @Query('startDate') startDate?: string,
-    @Query('endDate') endDate?: string,
+    // @Query('startDate') startDate?: string,
+    // @Query('endDate') endDate?: string,
     @Query('withComments') withComments: boolean = false,
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 10,
@@ -68,8 +68,8 @@ export class SermonsController {
     return this.sermonsService.getSermonsDetailedReport({
       preacherName,
       categoryName,
-      startDate,
-      endDate,
+      // startDate,
+      // endDate,
       withComments,
       page,
       limit,
