@@ -87,19 +87,36 @@ export class MembersService {
   async findAll(
     page: number = 1,
     limit: number = 10,
-  ): Promise<SuccessResponse<Members[]>> {
+  ): Promise<SuccessResponse<CreateMemberDto[]>> {
     this.logger.log(
       `Entered findAll method in MembersService with page: ${page} and limit: ${limit}`,
     );
 
     try {
       const offset = (page - 1) * limit;
-      const [data, totalItems] = await this.membersRepository.findAndCount({
+      const [members, totalItems] = await this.membersRepository.findAndCount({
+        where: { activeRecord: true }, // Agrega la condición para filtrar solo registros activos
         skip: offset,
         take: limit,
+        relations: ['documentType'], // Asegúrate de cargar las relaciones necesarias
       });
 
       const totalPages = Math.ceil(totalItems / limit);
+
+      // Transformar los miembros obtenidos en objetos CreateMemberDto
+      const data: CreateMemberDto[] = members.map((member) => ({
+        documentNumber: member.documentNumber,
+        documentTypeId: member.documentType.documentTypeId,
+        firstName: member.firstName,
+        middleName: member.middleName,
+        lastName: member.lastName,
+        secondLastName: member.secondLastName,
+        email: member.email,
+        landline: member.landline,
+        mobilePhone: member.mobilePhone,
+        birthDate: member.birthDate,
+        activeRecord: member.activeRecord,
+      }));
 
       // Crear el objeto de respuesta de paginación
       const pagination: PaginationResponseDTO = {
@@ -110,7 +127,7 @@ export class MembersService {
         offset: offset,
       };
 
-      return new SuccessResponse<Members[]>(
+      return new SuccessResponse<CreateMemberDto[]>(
         data,
         `Retrieved ${data.length} members`,
         200,
@@ -122,17 +139,43 @@ export class MembersService {
     }
   }
 
-  async findOne(id: number): Promise<Members> {
+  async findOne(id: number): Promise<SuccessResponse<CreateMemberDto>> {
     this.logger.log(`Entered findOne method in MembersService with id: ${id}`);
     try {
       const member = await this.membersRepository.findOne({
         where: { memberId: id },
+        relations: ['documentType'],
       });
+
       if (!member) {
         throw new NotFoundException(`Member with ID ${id} not found`);
       }
-      return member;
+
+      // Transformar el miembro obtenido en un objeto CreateMemberDto
+      const data: CreateMemberDto = {
+        documentNumber: member.documentNumber,
+        documentTypeId: member.documentType.documentTypeId,
+        firstName: member.firstName,
+        middleName: member.middleName,
+        lastName: member.lastName,
+        secondLastName: member.secondLastName,
+        email: member.email,
+        landline: member.landline,
+        mobilePhone: member.mobilePhone,
+        birthDate: member.birthDate,
+      };
+
+      return new SuccessResponse<CreateMemberDto>(
+        data,
+        `Member with ID ${id} retrieved successfully`,
+        200,
+        'OK',
+      );
     } catch (error) {
+      this.logger.error(
+        `An error occurred while retrieving member with ID ${id}`,
+        error.stack,
+      );
       ErrorHandler.handleServiceError(error);
     }
   }
@@ -207,7 +250,7 @@ export class MembersService {
       }
 
       member.activeRecord = false;
-      // member.auditDeletionDate = new Date();  // Opcional: Registrar la fecha de eliminación
+      member.auditDeletionDate = new Date();
       await this.membersRepository.save(member);
 
       return {

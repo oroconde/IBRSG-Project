@@ -4,6 +4,7 @@ import { DatabaseModule } from './database/database.module';
 import { MembersModule } from './members/members.module';
 import { ConfigModule } from '@nestjs/config';
 import { SermonsModule } from './sermons/sermons.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -11,6 +12,7 @@ import { SermonsModule } from './sermons/sermons.module';
     DatabaseModule,
     MembersModule,
     SermonsModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [],

@@ -42,4 +42,4 @@ export class createUpdateMemberResponseDTO extends ApiResponseDTO<CreateMemberDt
   statusCode: number;
 }
 
-export class DeleteMemberResponseDTO extends ApiResponseDTO<null> {}
+export class DeleteMemberResponseDTO extends ApiResponseDTO<any> {}
