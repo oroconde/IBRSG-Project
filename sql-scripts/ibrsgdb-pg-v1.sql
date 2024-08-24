@@ -14,7 +14,7 @@ CREATE TABLE congregation.document_types (
     audit_update_user INT NULL,
     audit_deletion_date TIMESTAMPTZ NULL,
     audit_deletion_user INT NULL,
-    active_record BOOLEAN DEFAULT TRUE
+    is_active BOOLEAN DEFAULT TRUE
 );
 
 -- Crear tablas en el esquema congregation
@@ -38,7 +38,7 @@ CREATE TABLE congregation.members (
     audit_update_user INT NULL,
     audit_deletion_date TIMESTAMPTZ NULL,
     audit_deletion_user INT NULL,
-    active_record BOOLEAN DEFAULT TRUE,
+    is_active BOOLEAN DEFAULT TRUE,
     CONSTRAINT fk_document_types FOREIGN KEY (document_type_id) REFERENCES congregation.document_types(document_type_id)
 );
 
@@ -51,7 +51,7 @@ CREATE TABLE congregation.preachers (
     audit_update_user INT NULL,
     audit_deletion_date TIMESTAMPTZ NULL,
     audit_deletion_user INT NULL,
-    active_record BOOLEAN DEFAULT TRUE NOT NULL,
+    is_active BOOLEAN DEFAULT TRUE NOT NULL,
     CONSTRAINT fk_member
         FOREIGN KEY (member_id)
         REFERENCES congregation.members(member_id)
@@ -72,7 +72,7 @@ CREATE TABLE congregation.tokens_members (
     audit_update_user INT NULL,
     audit_deletion_date TIMESTAMPTZ NULL,
     audit_deletion_user INT NULL,
-    active_record BOOLEAN DEFAULT TRUE,
+    is_active BOOLEAN DEFAULT TRUE,
     CONSTRAINT fk_tokens_member FOREIGN KEY (member_id) REFERENCES congregation.members(member_id)
 );
 
@@ -87,7 +87,7 @@ CREATE TABLE congregation.topics (
     audit_update_user INT NULL,
     audit_deletion_date TIMESTAMPTZ NULL,
     audit_deletion_user INT NULL,
-    active_record BOOLEAN DEFAULT TRUE NOT NULL
+    is_active BOOLEAN DEFAULT TRUE NOT NULL
 );
 
 CREATE TABLE congregation.categories (
@@ -100,7 +100,7 @@ CREATE TABLE congregation.categories (
     audit_update_user INT NULL,
     audit_deletion_date TIMESTAMPTZ NULL,
     audit_deletion_user INT NULL,
-    active_record BOOLEAN DEFAULT TRUE NOT NULL
+    is_active BOOLEAN DEFAULT TRUE NOT NULL
 );
 
 CREATE TABLE congregation.groups (
@@ -114,7 +114,7 @@ CREATE TABLE congregation.groups (
     audit_update_user INT NULL,
     audit_deletion_date TIMESTAMPTZ NULL,
     audit_deletion_user INT NULL,
-    active_record BOOLEAN DEFAULT TRUE
+    is_active BOOLEAN DEFAULT TRUE
 );
 
 CREATE TABLE congregation.roles (
@@ -126,7 +126,7 @@ CREATE TABLE congregation.roles (
     audit_update_user INT NULL,
     audit_deletion_date TIMESTAMPTZ NULL,
     audit_deletion_user INT NULL,
-    active_record BOOLEAN DEFAULT TRUE
+    is_active BOOLEAN DEFAULT TRUE
 );
 
 CREATE TABLE congregation.permissions (
@@ -139,7 +139,7 @@ CREATE TABLE congregation.permissions (
     audit_update_user INT NULL,
     audit_deletion_date TIMESTAMPTZ NULL,
     audit_deletion_user INT NULL,
-    active_record BOOLEAN DEFAULT TRUE
+    is_active BOOLEAN DEFAULT TRUE
 );
 
 CREATE TABLE congregation.screens (
@@ -154,7 +154,7 @@ CREATE TABLE congregation.screens (
     audit_update_user INT NULL,
     audit_deletion_date TIMESTAMPTZ NULL,
     audit_deletion_user INT NULL,
-    active_record BOOLEAN DEFAULT TRUE
+    is_active BOOLEAN DEFAULT TRUE
 );
 
 CREATE TABLE congregation.sermons (
@@ -171,7 +171,7 @@ CREATE TABLE congregation.sermons (
     audit_update_user INT NULL,
     audit_deletion_date TIMESTAMPTZ NULL,
     audit_deletion_user INT NULL,
-    active_record BOOLEAN DEFAULT TRUE,
+    is_active BOOLEAN DEFAULT TRUE,
     CONSTRAINT fk_preacher
         FOREIGN KEY (preacher_id)
         REFERENCES congregation.preachers(preacher_id),
@@ -193,7 +193,7 @@ CREATE TABLE congregation.sermon_series (
     audit_update_user INT NULL,
     audit_deletion_date TIMESTAMPTZ NULL,
     audit_deletion_user INT NULL,
-    active_record BOOLEAN DEFAULT TRUE,
+    is_active BOOLEAN DEFAULT TRUE,
     CONSTRAINT fk_preacher_series
         FOREIGN KEY (preacher_id)
         REFERENCES congregation.preachers(preacher_id),
@@ -212,7 +212,7 @@ CREATE TABLE congregation.sermon_series_association (
     audit_update_user INT NULL,
     audit_deletion_date TIMESTAMPTZ NULL,
     audit_deletion_user INT NULL,
-    active_record BOOLEAN DEFAULT TRUE,
+    is_active BOOLEAN DEFAULT TRUE,
     CONSTRAINT fk_sermon
         FOREIGN KEY (sermon_id)
         REFERENCES congregation.sermons(sermon_id),
@@ -233,7 +233,7 @@ CREATE TABLE congregation.sermon_comments (
     audit_update_user INT NULL,
     audit_deletion_date TIMESTAMPTZ NULL,
     audit_deletion_user INT NULL,
-    active_record BOOLEAN DEFAULT TRUE,
+    is_active BOOLEAN DEFAULT TRUE,
     CONSTRAINT fk_sermon
         FOREIGN KEY (sermon_id)
         REFERENCES congregation.sermons(sermon_id),
@@ -254,7 +254,7 @@ CREATE TABLE congregation.assignments (
     audit_update_user INT NULL,
     audit_deletion_date TIMESTAMPTZ NULL,
     audit_deletion_user INT NULL,
-    active_record BOOLEAN DEFAULT TRUE,
+    is_active BOOLEAN DEFAULT TRUE,
     FOREIGN KEY (sermon_id) REFERENCES congregation.sermons(sermon_id),
     FOREIGN KEY (member_id) REFERENCES congregation.members(member_id)
 );
@@ -270,7 +270,7 @@ CREATE TABLE congregation.events (
     audit_update_user INT NULL,
     audit_deletion_date TIMESTAMPTZ NULL,
     audit_deletion_user INT NULL,
-    active_record BOOLEAN DEFAULT TRUE
+    is_active BOOLEAN DEFAULT TRUE
 );
 
 CREATE TABLE congregation.attendances (
@@ -284,7 +284,7 @@ CREATE TABLE congregation.attendances (
     audit_update_user INT NULL,
     audit_deletion_date TIMESTAMPTZ NULL,
     audit_deletion_user INT NULL,
-    active_record BOOLEAN DEFAULT TRUE,
+    is_active BOOLEAN DEFAULT TRUE,
     FOREIGN KEY (member_id) REFERENCES congregation.members(member_id),
     FOREIGN KEY (event_id) REFERENCES congregation.events(event_id)
 );
@@ -298,7 +298,7 @@ CREATE TABLE congregation.donation_types (
     audit_update_user INT NULL,
     audit_deletion_date TIMESTAMPTZ NULL,
     audit_deletion_user INT NULL,
-    active_record BOOLEAN DEFAULT TRUE
+    is_active BOOLEAN DEFAULT TRUE
 );
 
 CREATE TABLE congregation.donations (
@@ -313,7 +313,7 @@ CREATE TABLE congregation.donations (
     audit_update_user INT NULL,
     audit_deletion_date TIMESTAMPTZ NULL,
     audit_deletion_user INT NULL,
-    active_record BOOLEAN DEFAULT TRUE,
+    is_active BOOLEAN DEFAULT TRUE,
     FOREIGN KEY (member_id) REFERENCES congregation.members(member_id),
     FOREIGN KEY (donation_type_id) REFERENCES congregation.donation_types(donation_type_id)
 );
@@ -327,7 +327,7 @@ CREATE TABLE congregation.members_groups (
     audit_update_user INT NULL,
     audit_deletion_date TIMESTAMPTZ NULL,
     audit_deletion_user INT NULL,
-    active_record BOOLEAN DEFAULT TRUE,
+    is_active BOOLEAN DEFAULT TRUE,
     PRIMARY KEY (member_id, group_id),
     FOREIGN KEY (member_id) REFERENCES congregation.members(member_id),
     FOREIGN KEY (group_id) REFERENCES congregation.groups(group_id)
@@ -343,7 +343,7 @@ CREATE TABLE congregation.roles_permissions (
     audit_update_user INT NULL,
     audit_deletion_date TIMESTAMPTZ NULL,
     audit_deletion_user INT NULL,
-    active_record BOOLEAN DEFAULT TRUE,
+    is_active BOOLEAN DEFAULT TRUE,
     PRIMARY KEY (role_id, permission_id, screen_id),
     FOREIGN KEY (role_id) REFERENCES congregation.roles(role_id),
     FOREIGN KEY (permission_id) REFERENCES congregation.permissions(permission_id),
@@ -359,7 +359,7 @@ CREATE TABLE congregation.members_roles (
     audit_update_user INT NULL,
     audit_deletion_date TIMESTAMPTZ NULL,
     audit_deletion_user INT NULL,
-    active_record BOOLEAN DEFAULT TRUE,
+    is_active BOOLEAN DEFAULT TRUE,
     PRIMARY KEY (member_id, role_id),
     FOREIGN KEY (member_id) REFERENCES congregation.members(member_id),
     FOREIGN KEY (role_id) REFERENCES congregation.roles(role_id)
@@ -375,7 +375,7 @@ CREATE TABLE demographics.departments (
     audit_update_user INT NULL,
     audit_deletion_date TIMESTAMPTZ NULL,
     audit_deletion_user INT NULL,
-    active_record BOOLEAN DEFAULT TRUE NOT NULL
+    is_active BOOLEAN DEFAULT TRUE NOT NULL
 );
 
 CREATE TABLE demographics.municipalities (
@@ -388,7 +388,7 @@ CREATE TABLE demographics.municipalities (
     audit_update_user INT NULL,
     audit_deletion_date TIMESTAMPTZ NULL,
     audit_deletion_user INT NULL,
-    active_record BOOLEAN DEFAULT TRUE NOT NULL,
+    is_active BOOLEAN DEFAULT TRUE NOT NULL,
     FOREIGN KEY (department_id) REFERENCES demographics.departments(department_id)
 );
 
@@ -401,7 +401,7 @@ CREATE TABLE demographics.marital_statuses (
     audit_update_user INT NULL,
     audit_deletion_date TIMESTAMPTZ NULL,
     audit_deletion_user INT NULL,
-    active_record BOOLEAN DEFAULT TRUE NOT NULL
+    is_active BOOLEAN DEFAULT TRUE NOT NULL
 );
 
 CREATE TABLE demographics.professions (
@@ -413,7 +413,7 @@ CREATE TABLE demographics.professions (
     audit_update_user INT NULL,
     audit_deletion_date TIMESTAMPTZ NULL,
     audit_deletion_user INT NULL,
-    active_record BOOLEAN DEFAULT TRUE NULL
+    is_active BOOLEAN DEFAULT TRUE NULL
 );
 
 CREATE TABLE demographics.blood_types (
@@ -425,7 +425,7 @@ CREATE TABLE demographics.blood_types (
     audit_update_user INT NULL,
     audit_deletion_date TIMESTAMPTZ NULL,
     audit_deletion_user INT NULL,
-    active_record BOOLEAN DEFAULT TRUE NOT NULL
+    is_active BOOLEAN DEFAULT TRUE NOT NULL
 );
 
 -- Crear tablas en el esquema ccore
@@ -445,6 +445,6 @@ CREATE TABLE ccore.logs (
     audit_update_user INT NULL,
     audit_deletion_date TIMESTAMPTZ NULL,
     audit_deletion_user INT NULL,
-    active_record BOOLEAN DEFAULT TRUE
+    is_active BOOLEAN DEFAULT TRUE
 );
 

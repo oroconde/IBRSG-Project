@@ -36,6 +36,6 @@ export class BloodTypes {
   @Column('integer', { name: 'audit_deletion_user', nullable: true })
   auditDeletionUser: number | null;
 
-  @Column('boolean', { name: 'active_record', default: () => 'true' })
-  activeRecord: boolean;
+  @Column('boolean', { name: 'is_active', default: () => 'true' })
+  isActive: boolean;
 }

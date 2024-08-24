@@ -51,11 +51,11 @@ export class Roles {
   auditDeletionUser: number | null;
 
   @Column("boolean", {
-    name: "active_record",
+    name: "is_active",
     nullable: true,
     default: () => "true",
   })
-  activeRecord: boolean | null;
+  isActive: boolean | null;
 
   @OneToMany(() => MembersRoles, (membersRoles) => membersRoles.role)
   membersRoles: MembersRoles[];

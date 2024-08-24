@@ -39,7 +39,7 @@ export class ErrorResponseDTO {
 
 export class BadRequestResponseDTO extends ErrorResponseDTO {
   @ApiProperty({
-    example: 'The activeRecord field is required',
+    example: 'The isActive field is required',
   })
   description: string;
 

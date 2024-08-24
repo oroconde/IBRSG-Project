@@ -87,13 +87,13 @@ export class MembersController {
 
   @Get(':id')
   @ApiOperation({ summary: 'Get a member by ID' })
-  @ApiParam({ name: 'id', description: 'ID of the member' })
   @ApiResponse({
     status: 200,
     description: 'Member found.',
-    type: CreateMemberDto,
+    type: MemberResponseDTO,
   })
   @ApiNotFoundResponse({ description: 'Member not found' })
+  @ApiParam({ name: 'id', description: 'ID of the member' })
   @ApiInternalServerErrorResponse({ description: 'Internal Server Error' })
   findOne(@Param('id') id: string) {
     return this.membersService.findOne(+id);
@@ -101,7 +101,6 @@ export class MembersController {
 
   @Put(':id')
   @ApiOperation({ summary: 'Update a member by ID' })
-  @ApiParam({ name: 'id', description: 'ID of the member' })
   @ApiBody({ type: UpdateMemberDto })
   @ApiResponse({
     status: 200,
@@ -110,6 +109,7 @@ export class MembersController {
   })
   @ApiNotFoundResponse({ description: 'Member not found' })
   @ApiBadRequestResponse({ description: 'Bad Request' })
+  @ApiParam({ name: 'id', description: 'ID of the member' })
   @ApiInternalServerErrorResponse({ description: 'Internal Server Error' })
   update(
     @Param('id') id: string,
@@ -120,13 +120,13 @@ export class MembersController {
 
   @Delete(':id')
   @ApiOperation({ summary: 'Soft delete a member by ID' })
-  @ApiParam({ name: 'id', description: 'ID of the member', example: 18 })
   @ApiResponse({
     status: 200,
     description: 'Member successfully soft deleted.',
     type: DeleteMemberResponseDTO,
   })
   @ApiNotFoundResponse({ description: 'Member not found or already inactive' })
+  @ApiParam({ name: 'id', description: 'ID of the member', example: 18 })
   @ApiInternalServerErrorResponse({ description: 'Internal Server Error' })
   softDelete(@Param('id') id: string): Promise<DeleteMemberResponseDTO> {
     return this.membersService.softDelete(+id);

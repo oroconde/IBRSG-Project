@@ -95,7 +95,7 @@ export class MembersService {
     try {
       const offset = (page - 1) * limit;
       const [members, totalItems] = await this.membersRepository.findAndCount({
-        where: { activeRecord: true }, // Agrega la condición para filtrar solo registros activos
+        where: { isActive: true }, // Agrega la condición para filtrar solo registros activos
         skip: offset,
         take: limit,
         relations: ['documentType'], // Asegúrate de cargar las relaciones necesarias
@@ -115,7 +115,6 @@ export class MembersService {
         landline: member.landline,
         mobilePhone: member.mobilePhone,
         birthDate: member.birthDate,
-        activeRecord: member.activeRecord,
       }));
 
       // Crear el objeto de respuesta de paginación
@@ -143,7 +142,7 @@ export class MembersService {
     this.logger.log(`Entered findOne method in MembersService with id: ${id}`);
     try {
       const member = await this.membersRepository.findOne({
-        where: { memberId: id },
+        where: { memberId: id, isActive: true },
         relations: ['documentType'],
       });
 
@@ -188,7 +187,7 @@ export class MembersService {
 
     try {
       const member = await this.membersRepository.findOne({
-        where: { memberId: id, activeRecord: true },
+        where: { memberId: id, isActive: true },
         relations: ['documentType'], // Asegurarse de que las relaciones necesarias estén cargadas
       });
 
@@ -239,7 +238,7 @@ export class MembersService {
     );
     try {
       const member = await this.membersRepository.findOne({
-        where: { memberId: id, activeRecord: true },
+        where: { memberId: id, isActive: true },
       });
 
       if (!member) {
@@ -249,7 +248,7 @@ export class MembersService {
         );
       }
 
-      member.activeRecord = false;
+      member.isActive = false;
       member.auditDeletionDate = new Date();
       await this.membersRepository.save(member);
 
