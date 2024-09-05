@@ -1,4 +1,4 @@
-import { PaginationResponseDTO } from './pagination.dto';
+import { PaginationResponseDTO } from '../dto/pagination.dto';
 
 export class SuccessResponse<T> {
   data: T;

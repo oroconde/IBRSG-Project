@@ -112,15 +112,6 @@ export class CreateMemberDto {
   @IsOptional()
   @IsDateString()
   birthDate?: string;
-
-  // @ApiProperty({
-  //   description: 'Indicates whether the record is active',
-  //   example: true,
-  //   required: false,
-  // })
-  // @IsOptional()
-  // @IsBoolean()
-  // isActive?: boolean;
 }
 
 export class UpdateMemberDto extends PartialType(CreateMemberDto) {}

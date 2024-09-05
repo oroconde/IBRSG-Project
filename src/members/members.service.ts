@@ -13,10 +13,11 @@ import {
   UpdateMemberDto,
 } from './dto-members/create-member.dto';
 import { ErrorHandler } from 'src/shared/utils/handler-errors';
-import { PaginationResponseDTO } from 'src/shared/commond/pagination.dto';
 import { SuccessResponse } from 'src/shared/commond/format-success-response';
-import { ApiResponseDTO } from 'src/shared/commond/common-responses.dto';
 import { DocumentTypes } from 'src/shared/entities/DocumentTypes';
+import { MemberResponseDto } from './dto-members/member-responses.dto';
+import { PaginationResponseDTO } from 'src/shared/dto/pagination.dto';
+import { ApiResponseDTO } from 'src/shared/dto/common-responses.dto';
 
 @Injectable()
 export class MembersService {
@@ -31,7 +32,7 @@ export class MembersService {
 
   async create(
     createMemberDto: CreateMemberDto,
-  ): Promise<SuccessResponse<CreateMemberDto>> {
+  ): Promise<SuccessResponse<MemberResponseDto>> {
     this.logger.log(
       `Entered create method in MembersService with data: ${JSON.stringify(createMemberDto)}`,
     );
@@ -64,14 +65,10 @@ export class MembersService {
         ...createMemberDto,
         documentType: documentType,
       });
-
       const savedMember = await this.membersRepository.save(newMember);
-      // Crear el objeto de respuesta que cumpla con el tipo CreateMemberDto
-      const responseData: CreateMemberDto = {
-        ...createMemberDto,
-        documentTypeId: savedMember.documentType.documentTypeId,
-      };
 
+      // Usar el constructor de MemberResponseDto para crear la respuesta
+      const responseData = new MemberResponseDto(savedMember);
       return {
         data: responseData,
         description: 'Member successfully created',
@@ -102,20 +99,9 @@ export class MembersService {
       });
 
       const totalPages = Math.ceil(totalItems / limit);
-
-      // Transformar los miembros obtenidos en objetos CreateMemberDto
-      const data: CreateMemberDto[] = members.map((member) => ({
-        documentNumber: member.documentNumber,
-        documentTypeId: member.documentType.documentTypeId,
-        firstName: member.firstName,
-        middleName: member.middleName,
-        lastName: member.lastName,
-        secondLastName: member.secondLastName,
-        email: member.email,
-        landline: member.landline,
-        mobilePhone: member.mobilePhone,
-        birthDate: member.birthDate,
-      }));
+      const responseData = members.map(
+        (member) => new MemberResponseDto(member),
+      );
 
       // Crear el objeto de respuesta de paginación
       const pagination: PaginationResponseDTO = {
@@ -127,8 +113,8 @@ export class MembersService {
       };
 
       return new SuccessResponse<CreateMemberDto[]>(
-        data,
-        `Retrieved ${data.length} members`,
+        responseData,
+        `Retrieved ${responseData.length} members`,
         200,
         'OK',
         pagination,
@@ -138,7 +124,7 @@ export class MembersService {
     }
   }
 
-  async findOne(id: number): Promise<SuccessResponse<CreateMemberDto>> {
+  async findOne(id: number): Promise<SuccessResponse<MemberResponseDto>> {
     this.logger.log(`Entered findOne method in MembersService with id: ${id}`);
     try {
       const member = await this.membersRepository.findOne({
@@ -150,22 +136,11 @@ export class MembersService {
         throw new NotFoundException(`Member with ID ${id} not found`);
       }
 
-      // Transformar el miembro obtenido en un objeto CreateMemberDto
-      const data: CreateMemberDto = {
-        documentNumber: member.documentNumber,
-        documentTypeId: member.documentType.documentTypeId,
-        firstName: member.firstName,
-        middleName: member.middleName,
-        lastName: member.lastName,
-        secondLastName: member.secondLastName,
-        email: member.email,
-        landline: member.landline,
-        mobilePhone: member.mobilePhone,
-        birthDate: member.birthDate,
-      };
+      // Usar el constructor de MemberResponseDto para crear la respuesta
+      const responseData = new MemberResponseDto(member);
 
-      return new SuccessResponse<CreateMemberDto>(
-        data,
+      return new SuccessResponse<MemberResponseDto>(
+        responseData,
         `Member with ID ${id} retrieved successfully`,
         200,
         'OK',
@@ -182,7 +157,7 @@ export class MembersService {
   async update(
     id: number,
     updateMemberDto: UpdateMemberDto,
-  ): Promise<SuccessResponse<UpdateMemberDto>> {
+  ): Promise<SuccessResponse<MemberResponseDto>> {
     this.logger.log(`Entered update method in MembersService with id: ${id}`);
 
     try {
@@ -212,11 +187,9 @@ export class MembersService {
 
       Object.assign(member, updateMemberDto); // Aplicar los demás cambios del DTO al miembro
       const updatedMember = await this.membersRepository.save(member);
-      const responseData: UpdateMemberDto = {
-        ...updateMemberDto,
-        documentTypeId: updatedMember.documentType.documentTypeId, // Asegurar que el ID del tipo de documento se incluya
-      };
 
+      // Usar el constructor de MemberResponseDto para crear la respuesta
+      const responseData = new MemberResponseDto(updatedMember);
       return {
         data: responseData,
         description: 'Member successfully updated',

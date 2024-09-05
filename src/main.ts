@@ -6,7 +6,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   const options = new DocumentBuilder()
-    .setTitle('API Iglesia Reformada Bautista Sublime gracia')
+    .setTitle('API Iglesia Reformada Bautista Sublime Gracia')
     .setDescription('Proyecto Donación')
     .setVersion('1.0')
     .build();

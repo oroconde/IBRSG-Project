@@ -27,10 +27,10 @@ import {
   UpdateMemberDto,
 } from './dto-members/create-member.dto';
 import {
-  createUpdateMemberResponseDTO,
+  createMemberResponse201DTO,
   DeleteMemberResponseDTO,
-  MemberResponseDTO,
-  MembersResponsesDTO,
+  MemberResponse200DTO,
+  MembersListResponses200DTO,
 } from './dto-members/member-responses.dto';
 import { SuccessResponse } from 'src/shared/commond/format-success-response';
 
@@ -45,7 +45,7 @@ export class MembersController {
   @ApiResponse({
     status: 201,
     description: 'Member successfully created.',
-    type: createUpdateMemberResponseDTO,
+    type: createMemberResponse201DTO,
   })
   @ApiBadRequestResponse({
     description: 'Bad Request',
@@ -78,10 +78,13 @@ export class MembersController {
   @ApiResponse({
     status: 200,
     description: 'List of all members.',
-    type: MembersResponsesDTO,
+    type: MembersListResponses200DTO,
   })
   @ApiInternalServerErrorResponse({ description: 'Internal Server Error' })
-  findAll(@Query('page') page: number = 1, @Query('limit') limit: number = 10) {
+  async findAll(
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
+  ) {
     return this.membersService.findAll(page, limit);
   }
 
@@ -90,7 +93,7 @@ export class MembersController {
   @ApiResponse({
     status: 200,
     description: 'Member found.',
-    type: MemberResponseDTO,
+    type: MemberResponse200DTO,
   })
   @ApiNotFoundResponse({ description: 'Member not found' })
   @ApiParam({ name: 'id', description: 'ID of the member' })
@@ -105,7 +108,7 @@ export class MembersController {
   @ApiResponse({
     status: 200,
     description: 'Member successfully updated.',
-    type: MemberResponseDTO,
+    type: MemberResponse200DTO,
   })
   @ApiNotFoundResponse({ description: 'Member not found' })
   @ApiBadRequestResponse({ description: 'Bad Request' })
