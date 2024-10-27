@@ -6,14 +6,32 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from "typeorm";
-import { Sermons } from "./Sermons";
-import { SermonSeries } from "./SermonSeries";
+import { Members } from "./Members";
 
-@Index("sermon_series_association_pkey", ["id"], { unique: true })
-@Entity("sermon_series_association", { schema: "congregation" })
-export class SermonSeriesAssociation {
-  @PrimaryGeneratedColumn({ type: "integer", name: "id" })
-  id: number;
+@Index("sessions_pkey", ["sessionId"], { unique: true })
+@Entity("sessions", { schema: "auth" })
+export class Sessions {
+  @PrimaryGeneratedColumn({ type: "integer", name: "session_id" })
+  sessionId: number;
+
+  @Column("character varying", { name: "token", nullable: true, length: 255 })
+  token: string | null;
+
+  @Column("timestamp with time zone", { name: "fecha_inicio", nullable: true })
+  fechaInicio: Date | null;
+
+  @Column("timestamp with time zone", {
+    name: "fecha_expiracion",
+    nullable: true,
+  })
+  fechaExpiracion: Date | null;
+
+  @Column("character varying", {
+    name: "ip_address",
+    nullable: true,
+    length: 255,
+  })
+  ipAddress: string | null;
 
   @Column("timestamp with time zone", {
     name: "audit_creation_date",
@@ -51,16 +69,7 @@ export class SermonSeriesAssociation {
   })
   isActive: boolean | null;
 
-  @ManyToOne(() => Sermons, (sermons) => sermons.sermonSeriesAssociations)
-  @JoinColumn([{ name: "sermon_id", referencedColumnName: "sermonId" }])
-  sermon: Sermons;
-
-  @ManyToOne(
-    () => SermonSeries,
-    (sermonSeries) => sermonSeries.sermonSeriesAssociations
-  )
-  @JoinColumn([
-    { name: "sermon_series_id", referencedColumnName: "sermonSerieId" },
-  ])
-  sermonSeries: SermonSeries;
+  @ManyToOne(() => Members, (members) => members.sessions)
+  @JoinColumn([{ name: "member_id", referencedColumnName: "memberId" }])
+  member: Members;
 }

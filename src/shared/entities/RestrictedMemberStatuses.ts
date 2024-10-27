@@ -2,23 +2,32 @@ import {
   Column,
   Entity,
   Index,
-  JoinColumn,
-  ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from "typeorm";
-import { Sermons } from "./Sermons";
-import { SermonSeries } from "./SermonSeries";
+import { RestrictedMembers } from "./RestrictedMembers";
 
-@Index("sermon_series_association_pkey", ["id"], { unique: true })
-@Entity("sermon_series_association", { schema: "congregation" })
-export class SermonSeriesAssociation {
-  @PrimaryGeneratedColumn({ type: "integer", name: "id" })
-  id: number;
+@Index("restricted_member_statuses_pkey", ["restrictedMemberStatusId"], {
+  unique: true,
+})
+@Entity("restricted_member_statuses", { schema: "auth" })
+export class RestrictedMemberStatuses {
+  @PrimaryGeneratedColumn({
+    type: "integer",
+    name: "restricted_member_status_id",
+  })
+  restrictedMemberStatusId: number;
+
+  @Column("character varying", {
+    name: "restricted_member_status_name",
+    nullable: true,
+    length: 100,
+  })
+  restrictedMemberStatusName: string | null;
 
   @Column("timestamp with time zone", {
     name: "audit_creation_date",
     nullable: true,
-    default: () => "CURRENT_TIMESTAMP",
   })
   auditCreationDate: Date | null;
 
@@ -28,7 +37,6 @@ export class SermonSeriesAssociation {
   @Column("timestamp with time zone", {
     name: "audit_update_date",
     nullable: true,
-    default: () => "CURRENT_TIMESTAMP",
   })
   auditUpdateDate: Date | null;
 
@@ -51,16 +59,9 @@ export class SermonSeriesAssociation {
   })
   isActive: boolean | null;
 
-  @ManyToOne(() => Sermons, (sermons) => sermons.sermonSeriesAssociations)
-  @JoinColumn([{ name: "sermon_id", referencedColumnName: "sermonId" }])
-  sermon: Sermons;
-
-  @ManyToOne(
-    () => SermonSeries,
-    (sermonSeries) => sermonSeries.sermonSeriesAssociations
+  @OneToMany(
+    () => RestrictedMembers,
+    (restrictedMembers) => restrictedMembers.restrictedMemberStatus
   )
-  @JoinColumn([
-    { name: "sermon_series_id", referencedColumnName: "sermonSerieId" },
-  ])
-  sermonSeries: SermonSeries;
+  restrictedMembers: RestrictedMembers[];
 }

@@ -17,6 +17,8 @@ import { Municipalities } from './Municipalities';
 import { Permissions } from './Permissions';
 import { Preachers } from './Preachers';
 import { Professions } from './Professions';
+import { RestrictedMembers } from './RestrictedMembers';
+import { RestrictedMemberStatuses } from './RestrictedMemberStatuses';
 import { Roles } from './Roles';
 import { RolesPermissions } from './RolesPermissions';
 import { Screens } from './Screens';
@@ -24,6 +26,7 @@ import { SermonComments } from './SermonComments';
 import { Sermons } from './Sermons';
 import { SermonSeries } from './SermonSeries';
 import { SermonSeriesAssociation } from './SermonSeriesAssociation';
+import { Sessions } from './Sessions';
 import { TokensMembers } from './TokensMembers';
 import { Topics } from './Topics';
 
@@ -51,9 +54,12 @@ export const Entities = [
   RolesPermissions,
   Screens,
   SermonComments,
+  Sessions,
   Sermons,
   SermonSeries,
   SermonSeriesAssociation,
   TokensMembers,
   Topics,
+  RestrictedMembers,
+  RestrictedMemberStatuses,
 ];

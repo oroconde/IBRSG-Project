@@ -5,69 +5,69 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
-} from 'typeorm';
-import { DonationTypes } from './DonationTypes';
-import { Members } from './Members';
+} from "typeorm";
+import { DonationTypes } from "./DonationTypes";
+import { Members } from "./Members";
 
-@Index('donations_pkey', ['donationId'], { unique: true })
-@Entity('donations', { schema: 'congregation' })
+@Index("donations_pkey", ["donationId"], { unique: true })
+@Entity("donations", { schema: "congregation" })
 export class Donations {
-  @PrimaryGeneratedColumn({ type: 'integer', name: 'donation_id' })
+  @PrimaryGeneratedColumn({ type: "integer", name: "donation_id" })
   donationId: number;
 
-  @Column('numeric', { name: 'amount', precision: 10, scale: 2 })
+  @Column("numeric", { name: "amount", precision: 10, scale: 2 })
   amount: string;
 
-  @Column('timestamp with time zone', {
-    name: 'date',
+  @Column("timestamp with time zone", {
+    name: "date",
     nullable: true,
-    default: () => 'CURRENT_TIMESTAMP',
+    default: () => "CURRENT_TIMESTAMP",
   })
   date: Date | null;
 
-  @Column('timestamp with time zone', {
-    name: 'audit_creation_date',
+  @Column("timestamp with time zone", {
+    name: "audit_creation_date",
     nullable: true,
-    default: () => 'CURRENT_TIMESTAMP',
+    default: () => "CURRENT_TIMESTAMP",
   })
   auditCreationDate: Date | null;
 
-  @Column('integer', { name: 'audit_creation_user', nullable: true })
+  @Column("integer", { name: "audit_creation_user", nullable: true })
   auditCreationUser: number | null;
 
-  @Column('timestamp with time zone', {
-    name: 'audit_update_date',
+  @Column("timestamp with time zone", {
+    name: "audit_update_date",
     nullable: true,
-    default: () => 'CURRENT_TIMESTAMP',
+    default: () => "CURRENT_TIMESTAMP",
   })
   auditUpdateDate: Date | null;
 
-  @Column('integer', { name: 'audit_update_user', nullable: true })
+  @Column("integer", { name: "audit_update_user", nullable: true })
   auditUpdateUser: number | null;
 
-  @Column('timestamp with time zone', {
-    name: 'audit_deletion_date',
+  @Column("timestamp with time zone", {
+    name: "audit_deletion_date",
     nullable: true,
   })
   auditDeletionDate: Date | null;
 
-  @Column('integer', { name: 'audit_deletion_user', nullable: true })
+  @Column("integer", { name: "audit_deletion_user", nullable: true })
   auditDeletionUser: number | null;
 
-  @Column('boolean', {
-    name: 'is_active',
+  @Column("boolean", {
+    name: "is_active",
     nullable: true,
-    default: () => 'true',
+    default: () => "true",
   })
   isActive: boolean | null;
 
   @ManyToOne(() => DonationTypes, (donationTypes) => donationTypes.donations)
   @JoinColumn([
-    { name: 'donation_type_id', referencedColumnName: 'donationTypeId' },
+    { name: "donation_type_id", referencedColumnName: "donationTypeId" },
   ])
   donationType: DonationTypes;
 
   @ManyToOne(() => Members, (members) => members.donations)
-  @JoinColumn([{ name: 'member_id', referencedColumnName: 'memberId' }])
+  @JoinColumn([{ name: "member_id", referencedColumnName: "memberId" }])
   member: Members;
 }

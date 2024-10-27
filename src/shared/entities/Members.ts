@@ -1,11 +1,13 @@
 import {
   Column,
+  CreateDateColumn,
   Entity,
   Index,
   JoinColumn,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import { Assignments } from './Assignments';
 import { Attendances } from './Attendances';
@@ -14,11 +16,13 @@ import { DocumentTypes } from './DocumentTypes';
 import { MembersGroups } from './MembersGroups';
 import { MembersRoles } from './MembersRoles';
 import { Preachers } from './Preachers';
+import { RestrictedMembers } from './RestrictedMembers';
 import { SermonComments } from './SermonComments';
+import { Sessions } from './Sessions';
 import { TokensMembers } from './TokensMembers';
 
 @Index('members_pkey', ['memberId'], { unique: true })
-@Entity('members', { schema: 'congregation' })
+@Entity('members', { schema: 'auth' })
 export class Members {
   @PrimaryGeneratedColumn({ type: 'integer', name: 'member_id' })
   memberId: number;
@@ -39,6 +43,22 @@ export class Members {
     length: 255,
   })
   passwordRecoveryToken: string | null;
+
+  @Column('timestamp with time zone', {
+    name: 'password_expiration_date',
+    nullable: true,
+  })
+  passwordExpirationDate: Date | null;
+
+  @Column('boolean', { name: 'temporary_password', nullable: true })
+  temporaryPassword: boolean | null;
+
+  @Column('integer', {
+    name: 'failed_attempts',
+    nullable: true,
+    default: () => '0',
+  })
+  failedAttempts: number | null;
 
   @Column('character varying', {
     name: 'first_name',
@@ -84,7 +104,8 @@ export class Members {
   @Column('date', { name: 'birth_date', nullable: true })
   birthDate: string | null;
 
-  @Column('timestamp with time zone', {
+  @CreateDateColumn({
+    type: 'timestamp with time zone',
     name: 'audit_creation_date',
     nullable: true,
     default: () => 'CURRENT_TIMESTAMP',
@@ -94,10 +115,11 @@ export class Members {
   @Column('integer', { name: 'audit_creation_user', nullable: true })
   auditCreationUser: number | null;
 
-  @Column('timestamp with time zone', {
+  @UpdateDateColumn({
+    type: 'timestamp with time zone', // Configuramos el tipo con zona horaria
     name: 'audit_update_date',
     nullable: true,
-    default: () => 'CURRENT_TIMESTAMP',
+    default: () => 'CURRENT_TIMESTAMP', // Usamos CURRENT_TIMESTAMP para manejar la hora actual en UTC
   })
   auditUpdateDate: Date | null;
 
@@ -144,8 +166,17 @@ export class Members {
   @OneToMany(() => Preachers, (preachers) => preachers.member)
   preachers: Preachers[];
 
+  @OneToMany(
+    () => RestrictedMembers,
+    (restrictedMembers) => restrictedMembers.member,
+  )
+  restrictedMembers: RestrictedMembers[];
+
   @OneToMany(() => SermonComments, (sermonComments) => sermonComments.member)
   sermonComments: SermonComments[];
+
+  @OneToMany(() => Sessions, (sessions) => sessions.member)
+  sessions: Sessions[];
 
   @OneToMany(() => TokensMembers, (tokensMembers) => tokensMembers.member)
   tokensMembers: TokensMembers[];

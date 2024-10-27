@@ -7,24 +7,26 @@ import {
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { Members } from "./Members";
-import { Sermons } from "./Sermons";
+import { RestrictedMemberStatuses } from "./RestrictedMemberStatuses";
 
-@Index("assignments_pkey", ["assignmentId"], { unique: true })
-@Entity("assignments", { schema: "congregation" })
-export class Assignments {
-  @PrimaryGeneratedColumn({ type: "integer", name: "assignment_id" })
-  assignmentId: number;
+@Index("restricted_members_pkey", ["restrictedMemberId"], { unique: true })
+@Entity("restricted_members", { schema: "auth" })
+export class RestrictedMembers {
+  @PrimaryGeneratedColumn({ type: "integer", name: "restricted_member_id" })
+  restrictedMemberId: number;
 
-  @Column("date", { name: "start_date", nullable: true })
-  startDate: string | null;
+  @Column("character varying", { name: "restriction_reason", length: 255 })
+  restrictionReason: string;
 
-  @Column("date", { name: "end_date", nullable: true })
-  endDate: string | null;
+  @Column("timestamp with time zone", { name: "start_date" })
+  startDate: Date;
+
+  @Column("timestamp with time zone", { name: "end_date", nullable: true })
+  endDate: Date | null;
 
   @Column("timestamp with time zone", {
     name: "audit_creation_date",
     nullable: true,
-    default: () => "CURRENT_TIMESTAMP",
   })
   auditCreationDate: Date | null;
 
@@ -34,7 +36,6 @@ export class Assignments {
   @Column("timestamp with time zone", {
     name: "audit_update_date",
     nullable: true,
-    default: () => "CURRENT_TIMESTAMP",
   })
   auditUpdateDate: Date | null;
 
@@ -57,11 +58,19 @@ export class Assignments {
   })
   isActive: boolean | null;
 
-  @ManyToOne(() => Members, (members) => members.assignments)
+  @ManyToOne(() => Members, (members) => members.restrictedMembers)
   @JoinColumn([{ name: "member_id", referencedColumnName: "memberId" }])
   member: Members;
 
-  @ManyToOne(() => Sermons, (sermons) => sermons.assignments)
-  @JoinColumn([{ name: "sermon_id", referencedColumnName: "sermonId" }])
-  sermon: Sermons;
+  @ManyToOne(
+    () => RestrictedMemberStatuses,
+    (restrictedMemberStatuses) => restrictedMemberStatuses.restrictedMembers
+  )
+  @JoinColumn([
+    {
+      name: "restricted_member_status_id",
+      referencedColumnName: "restrictedMemberStatusId",
+    },
+  ])
+  restrictedMemberStatus: RestrictedMemberStatuses;
 }
