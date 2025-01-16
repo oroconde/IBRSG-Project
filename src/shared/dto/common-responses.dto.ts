@@ -37,7 +37,7 @@ export class ErrorResponseDTO {
   statusText: string;
 }
 
-export class BadRequestResponseDTO extends ErrorResponseDTO {
+export class BadRequestResponse400 extends ErrorResponseDTO {
   @ApiProperty({
     example: 'The isActive field is required',
   })
@@ -54,7 +54,7 @@ export class BadRequestResponseDTO extends ErrorResponseDTO {
   statusText: string;
 }
 
-export class UnauthorizedResponseDTO extends ErrorResponseDTO {
+export class UnauthorizedResponse401 extends ErrorResponseDTO {
   @ApiProperty({
     example: 'You do not have permissions',
   })
@@ -71,7 +71,7 @@ export class UnauthorizedResponseDTO extends ErrorResponseDTO {
   statusText: string;
 }
 
-export class ConflictResponseDTO extends ErrorResponseDTO {
+export class ConflictResponse409 extends ErrorResponseDTO {
   @ApiProperty({
     example: 'Conflict while consuming service',
   })
@@ -88,7 +88,7 @@ export class ConflictResponseDTO extends ErrorResponseDTO {
   statusText: string;
 }
 
-export class NotFoundResponseDTO extends ErrorResponseDTO {
+export class NotFoundResponse404 extends ErrorResponseDTO {
   @ApiProperty({
     example: 'Resource not found',
   })
@@ -105,7 +105,7 @@ export class NotFoundResponseDTO extends ErrorResponseDTO {
   statusText: string;
 }
 
-export class InternalServerErrorResponseDTO extends ErrorResponseDTO {
+export class InternalServerErrorResponse500 extends ErrorResponseDTO {
   @ApiProperty({
     example: 'An unexpected error occurred',
   })

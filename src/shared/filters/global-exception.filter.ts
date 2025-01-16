@@ -1,12 +1,12 @@
 import {
-  ExceptionFilter,
-  Catch,
   ArgumentsHost,
+  Catch,
+  ExceptionFilter,
   HttpException,
   HttpStatus,
   Logger,
 } from '@nestjs/common';
-import { Request, Response } from 'express';
+import { Response, Request } from 'express';
 
 @Catch()
 export class GlobalExceptionFilter implements ExceptionFilter {
@@ -27,22 +27,35 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     const request = ctx.getRequest<Request>();
 
     let status = HttpStatus.INTERNAL_SERVER_ERROR;
-    let description = 'Error interno del servidor';
+    let description = 'Ha ocurrido un error inesperado';
+    let additionalProperties = {};
 
+    // Manejo de HttpException
     if (exception instanceof HttpException) {
       status = exception.getStatus();
+      const exceptionResponse = exception.getResponse();
+
+      if (typeof exceptionResponse === 'object') {
+        additionalProperties = exceptionResponse; // Incluye propiedades personalizadas
+      }
+
       description = this.extractDescription(exception);
     } else {
-      this.logger.error('Excepción no controlada', exception);
+      // Manejo de excepciones no controladas
+      this.logger.error(
+        'Excepción no controlada capturada',
+        exception instanceof Error ? exception.stack : String(exception),
+      );
     }
 
+    // Respuesta de error
     const errorResponse = {
-      data: null,
       description,
       statusCode: status,
       statusText: this.getStatusText(status),
       path: request.url,
       timestamp: new Date().toISOString(),
+      ...additionalProperties, // Fusiona propiedades personalizadas
     };
 
     response.status(status).json(errorResponse);
@@ -51,13 +64,30 @@ export class GlobalExceptionFilter implements ExceptionFilter {
   private extractDescription(exception: HttpException): string {
     const exceptionResponse = exception.getResponse();
 
-    if (typeof exceptionResponse === 'string') return exceptionResponse;
-    if (exceptionResponse && typeof exceptionResponse === 'object') {
-      const { message } = exceptionResponse as any;
-      if (typeof message === 'string') return message;
-      if (Array.isArray(message) && message.length > 0)
-        return message.join(', ');
+    if (typeof exceptionResponse === 'string') {
+      return exceptionResponse;
     }
+
+    if (exceptionResponse && typeof exceptionResponse === 'object') {
+      const { description, message } = exceptionResponse as any;
+
+      // Prioriza "description" si está disponible
+      if (description) {
+        return description;
+      }
+
+      // Usa "message" como alternativa
+      if (typeof message === 'string') {
+        return message;
+      }
+
+      // Si "message" es un array, lo convierte en una cadena
+      if (Array.isArray(message) && message.length > 0) {
+        return message.join(', ');
+      }
+    }
+
+    // Mensaje genérico en caso de no encontrar "description" ni "message"
     return 'Ha ocurrido un error inesperado';
   }
 

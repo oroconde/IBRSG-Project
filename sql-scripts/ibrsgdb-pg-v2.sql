@@ -108,6 +108,7 @@ CREATE TABLE auth.members (
 	failed_attempts int4 DEFAULT 0 NULL, 
 	is_active bool DEFAULT true NULL,
 	CONSTRAINT document_unique UNIQUE (document_number),
+	CONSTRAINT email_unique UNIQUE (email),
 	CONSTRAINT members_pkey PRIMARY KEY (member_id),
 	CONSTRAINT fk_document_types FOREIGN KEY (document_type_id) REFERENCES auth.document_types(document_type_id)
 );
@@ -448,7 +449,11 @@ CREATE TABLE congregation.sermons (
 	audit_deletion_date timestamptz NULL,
 	audit_deletion_user int4 NULL,
 	is_active bool DEFAULT true NULL,
-	CONSTRAINT sermons_pkey PRIMARY KEY (sermon_id)
+	sermon_code varchar NOT NULL,
+	CONSTRAINT sermons_pkey PRIMARY KEY (sermon_id),
+	CONSTRAINT sermons_unique UNIQUE (sermon_code),
+	CONSTRAINT fk_category FOREIGN KEY (category_id) REFERENCES congregation.categories(category_id),
+	CONSTRAINT fk_preacher FOREIGN KEY (preacher_id) REFERENCES congregation.preachers(preacher_id)
 );
 
 
@@ -492,11 +497,6 @@ ALTER TABLE congregation.sermon_series ADD CONSTRAINT fk_preacher_series FOREIGN
 ALTER TABLE congregation.sermon_series_association ADD CONSTRAINT fk_sermon FOREIGN KEY (sermon_id) REFERENCES congregation.sermons(sermon_id);
 ALTER TABLE congregation.sermon_series_association ADD CONSTRAINT fk_sermon_series FOREIGN KEY (sermon_series_id) REFERENCES congregation.sermon_series(sermon_serie_id);
 
-
--- congregation.sermons foreign keys
-
-ALTER TABLE congregation.sermons ADD CONSTRAINT fk_category FOREIGN KEY (category_id) REFERENCES congregation.categories(category_id);
-ALTER TABLE congregation.sermons ADD CONSTRAINT fk_preacher FOREIGN KEY (preacher_id) REFERENCES congregation.preachers(preacher_id);
 
 -- ccore
 

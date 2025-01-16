@@ -1,11 +1,16 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { SuccessResponse } from 'src/shared/commond/format-success-response';
+import { SuccessResponse } from 'src/shared/common/format-success-response';
 import { Sermons } from 'src/shared/entities/Sermons';
+import { Preachers } from 'src/shared/entities/Preachers';
 import { ErrorHandler } from 'src/shared/utils/handler-errors';
 import { Repository } from 'typeorm';
-import { SermonDetailedReportDto } from './dto-semons/sermon-detailed-report.dto';
-import { PaginationResponseDTO } from 'src/shared/commond/pagination.dto';
+import { Categories } from 'src/shared/entities/Categories';
+import { SermonDetailedResponse } from './dto-semons/sermon-detailed-response.dto';
+import { PaginationResponseDTO } from 'src/shared/dto/pagination.dto';
+import { SermonResponseDto } from './dto-semons/sermon-responses.dto';
+import { CreateSermonDto } from './dto-semons/create-sermon.dto';
+import { AllQueryParams } from 'src/shared/dto/all-query-params';
 
 @Injectable()
 export class SermonsService {
@@ -16,112 +21,134 @@ export class SermonsService {
     private readonly sermonsRepository: Repository<Sermons>,
   ) {}
 
-  async getSermonsDetailedReport({
-    preacherName,
-    categoryName,
-    // startDate,
-    // endDate,
-    withComments = false,
-    page = 1,
-    limit = 10,
-  }: {
-    preacherName?: string;
-    categoryName?: string;
-    // startDate?: string;
-    // endDate?: string;
-    withComments?: boolean;
-    page?: number;
-    limit?: number;
-  }): Promise<SuccessResponse<SermonDetailedReportDto[]>> {
-    this.logger.log('Generating detailed report for sermons.');
+  async create(
+    createSermonDto: CreateSermonDto,
+  ): Promise<SuccessResponse<SermonResponseDto>> {
+    const context = `${SermonsService.name} | create`;
+    this.logger.log(
+      `Entered create method with data: ${JSON.stringify(createSermonDto)}`,
+      context,
+    );
+
+    try {
+      this.logger.debug(
+        `Creating new sermon with data: ${JSON.stringify(createSermonDto)}`,
+        context,
+      );
+
+      const newSermon = this.sermonsRepository.create({
+        ...createSermonDto,
+        category: createSermonDto.categoryId
+          ? ({ categoryId: createSermonDto.categoryId } as Categories)
+          : null,
+        preacher: createSermonDto.preacherId
+          ? ({ preacherId: createSermonDto.preacherId } as Preachers)
+          : null,
+      });
+
+      this.logger.debug(`Saving new sermon to the database`, context);
+
+      const savedSermon = await this.sermonsRepository.save(newSermon);
+
+      this.logger.log(
+        `Sermon successfully created with ID: ${savedSermon.sermonId}`,
+        context,
+      );
+
+      const responseData = new SermonResponseDto(savedSermon);
+
+      return new SuccessResponse<SermonResponseDto>(
+        responseData,
+        'Sermón creado exitosamente',
+        201,
+        'OK',
+      );
+    } catch (error) {
+      this.logger.error(
+        `An error occurred while creating sermon`,
+        error.stack,
+        context,
+      );
+      ErrorHandler.handleServiceError(error);
+    }
+  }
+
+  // # Optimizado con queryBuilder
+  async findAllSermons(
+    queryParams: AllQueryParams,
+  ): Promise<SuccessResponse<SermonDetailedResponse[]>> {
+    const { sermonName, preacherName, page, limit } = queryParams;
+    const context = `${SermonsService.name} | findAllSermons`;
+
+    this.logger.log(
+      `Ejecutando método findAllSermons con params: ${JSON.stringify(queryParams)}`,
+      `${context} | BEGIN`,
+    );
 
     try {
       const queryBuilder = this.sermonsRepository
         .createQueryBuilder('sermon')
-        .leftJoinAndSelect('sermon.preacher', 'preacher')
-        .leftJoinAndSelect('preacher.member', 'preacherMember')
-        .leftJoinAndSelect('sermon.category', 'category');
+        .select([
+          'sermon.sermonId',
+          'sermon.sermonName',
+          'preacher.preacherId',
+          'member.firstName',
+          'member.lastName',
+        ]) // Seleccionar solo los campos necesarios
+        .leftJoin('sermon.preacher', 'preacher')
+        .leftJoin('preacher.member', 'member')
+        .where('sermon.isActive = :isActive', { isActive: true });
 
-      // Filtrar por nombre del predicador
+      if (sermonName) {
+        queryBuilder.andWhere('sermon.sermonName ILIKE :sermonName', {
+          sermonName: `%${sermonName}%`,
+        });
+      }
+
       if (preacherName) {
         queryBuilder.andWhere(
-          "CONCAT(preacherMember.firstName,' ', preacherMember.lastName) ILIKE :preacherName",
+          '(member.firstName ILIKE :preacherName OR member.lastName ILIKE :preacherName)',
           { preacherName: `%${preacherName}%` },
         );
       }
 
-      // Filtrar por nombre de la categoría
-      if (categoryName) {
-        queryBuilder.andWhere('category.categoryName ILIKE :categoryName', {
-          categoryName: `%${categoryName}%`,
-        });
-      }
-
-      // // Filtrar por fecha de inicio
-      // if (startDate) {
-      //   queryBuilder.andWhere('sermon.sermon_date >= :startDate', {
-      //     startDate,
-      //   });
-      // }
-
-      // // Filtrar por fecha de fin
-      // if (endDate) {
-      //   queryBuilder.andWhere('sermon.sermon_date <= :endDate', { endDate });
-      // }
-
-      // Incluir comentarios si se solicita
-      if (withComments) {
-        queryBuilder
-          .leftJoinAndSelect('sermon.comments', 'comments')
-          .leftJoinAndSelect('comments.member', 'commentMember');
-      }
-
+      const offset = (page - 1) * limit;
       const [sermons, totalItems] = await queryBuilder
+        .skip(offset)
         .take(limit)
-        .skip((page - 1) * limit)
         .getManyAndCount();
 
-      const totalPages = Math.ceil(totalItems / limit);
-      const pagination = new PaginationResponseDTO();
-      pagination.currentPage = page;
-      pagination.totalPages = totalPages;
-      pagination.totalItems = totalItems;
-      pagination.limit = limit;
-      pagination.offset = (page - 1) * limit;
+      const responseData = sermons.map(
+        (sermon) => new SermonDetailedResponse(sermon),
+      );
 
-      if (totalItems === 0) {
-        this.logger.warn('No results found for the applied filters');
-      }
+      const pagination: PaginationResponseDTO = {
+        currentPage: page,
+        totalPages: Math.ceil(totalItems / limit),
+        totalItems,
+        limit,
+        offset,
+      };
 
-      const result = sermons.map((sermon) => ({
-        sermonName: sermon.sermonName,
-        preacherName: `${sermon.preacher.member.firstName} ${sermon.preacher.member.lastName}`,
-        comments: sermon.sermonComments?.map((comment) => ({
-          comment: comment.comment,
-          commentDate: comment.commentDate.toString().split('T')[0],
-          memberName: `${comment.member.firstName} ${comment.member.lastName}`,
-        })),
-      }));
+      this.logger.log(
+        `Retornando respuesta con ${responseData.length} sermones.`,
+        `${context} | SUCCESS`,
+      );
 
-      return new SuccessResponse(
-        result,
-        'Consulta exitosa',
+      return new SuccessResponse<SermonDetailedResponse[]>(
+        responseData,
+        `Retrieved ${responseData.length} sermons`,
         200,
         'OK',
         pagination,
       );
     } catch (error) {
       this.logger.error(
-        'Error generating detailed report for sermons',
+        `Error al ejecutar findAllSermons: ${error.message}`,
         error.stack,
+        `${context} | ERROR`,
       );
       ErrorHandler.handleServiceError(error);
-      return new SuccessResponse(
-        [],
-        'Error al generar informe detallado de sermones',
-        500,
-        'Internal Server Error',
-      );
     }
   }
 }
