@@ -1,9 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { SuccessResponse } from 'src/shared/common/format-success-response';
+import { SuccessResponse } from 'src/shared/providers/format-success-response';
 import { Sermons } from 'src/shared/entities/Sermons';
 import { Preachers } from 'src/shared/entities/Preachers';
-import { ErrorHandler } from 'src/shared/utils/handler-errors';
 import { Repository } from 'typeorm';
 import { Categories } from 'src/shared/entities/Categories';
 import { SermonDetailedResponse } from './dto-semons/sermon-detailed-response.dto';
@@ -11,6 +10,7 @@ import { PaginationResponseDTO } from 'src/shared/dto/pagination.dto';
 import { SermonResponseDto } from './dto-semons/sermon-responses.dto';
 import { CreateSermonDto } from './dto-semons/create-sermon.dto';
 import { AllQueryParams } from 'src/shared/dto/all-query-params';
+import { ErrorHandler } from 'src/shared/utils/handler-errors';
 
 @Injectable()
 export class SermonsService {
@@ -19,6 +19,7 @@ export class SermonsService {
   constructor(
     @InjectRepository(Sermons, 'ibrsgdb')
     private readonly sermonsRepository: Repository<Sermons>,
+    protected readonly errorHandler: ErrorHandler,
   ) {}
 
   async create(
@@ -69,7 +70,8 @@ export class SermonsService {
         error.stack,
         context,
       );
-      ErrorHandler.handleServiceError(error);
+      // ErrorHandler.handleServiceError(error);
+      this.errorHandler.handleServiceError(error);
     }
   }
 
@@ -148,7 +150,7 @@ export class SermonsService {
         error.stack,
         `${context} | ERROR`,
       );
-      ErrorHandler.handleServiceError(error);
+      this.errorHandler.handleServiceError(error);
     }
   }
 }

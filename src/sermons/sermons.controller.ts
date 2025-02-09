@@ -10,7 +10,7 @@ import {
   ApiInternalServerErrorResponse,
 } from '@nestjs/swagger';
 import { SermonsService } from './sermons.service';
-import { SuccessResponse } from 'src/shared/common/format-success-response';
+import { SuccessResponse } from 'src/shared/providers/format-success-response';
 import {
   SermonDetailedResponse,
   SermonsListResponses200DTO,

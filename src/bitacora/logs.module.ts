@@ -4,7 +4,7 @@ import { Logs } from 'src/shared/entities/Logs';
 import { LogService } from './logs.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Logs], 'ibrsg')],
+  imports: [TypeOrmModule.forFeature([Logs], 'ibrsgdb')],
   providers: [LogService],
 })
 export class LogsModule {}

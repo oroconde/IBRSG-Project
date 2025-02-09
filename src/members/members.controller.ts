@@ -7,6 +7,7 @@ import {
   Delete,
   Query,
   Put,
+  UseGuards,
 } from '@nestjs/common';
 import { MembersService } from './members.service';
 
@@ -21,18 +22,24 @@ import {
   ApiOperation,
   ApiQuery,
   ApiConflictResponse,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
 import {
   CreateMemberDto,
   UpdateMemberDto,
 } from './dto-members/create-member.dto';
 import {
-  createMemberResponse201DTO,
-  DeleteMemberResponseDTO,
-  MemberResponse200DTO,
+  CreateMemberResponse201DTO,
   MembersListResponses200DTO,
-} from './dto-members/member-responses.dto';
-import { SuccessResponse } from 'src/shared/commond/format-success-response';
+  MemberResponse200DTO,
+  DeleteMemberResponseDTO,
+  MemberResponseDto,
+} from './dto-members/responses-members.dto';
+import { SuccessResponse } from 'src/shared/providers/format-success-response';
+import { ErrorResponseDTO } from 'src/shared/dto/common-responses.dto';
+import { AllQueryParams } from 'src/shared/dto/all-query-params';
+import { Members } from 'src/shared/entities/Members';
+import { JwtGuard } from 'src/shared/guards/jwt.guard';
 
 @ApiTags('Members')
 @Controller('members')
@@ -45,7 +52,7 @@ export class MembersController {
   @ApiResponse({
     status: 201,
     description: 'Member successfully created.',
-    type: createMemberResponse201DTO,
+    type: CreateMemberResponse201DTO,
   })
   @ApiBadRequestResponse({
     description: 'Bad Request',
@@ -62,18 +69,30 @@ export class MembersController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Get all members' })
-  @ApiQuery({
-    name: 'page',
-    required: false,
-    description: 'Page number',
-    example: 1,
+  @ApiOperation({
+    summary: 'Get all members',
+    description:
+      'Este endpoint permite listar todos los miembros con filtros opcionales',
   })
   @ApiQuery({
     name: 'limit',
-    required: false,
     description: 'Number of items per page',
+    type: Number,
+    required: false,
     example: 10,
+  })
+  @ApiQuery({
+    name: 'page',
+    description: 'Page number',
+    type: Number,
+    required: false,
+    example: 1,
+  })
+  @ApiQuery({
+    name: 'documentNumber',
+    description: 'Document number',
+    type: String,
+    required: false,
   })
   @ApiResponse({
     status: 200,
@@ -81,11 +100,8 @@ export class MembersController {
     type: MembersListResponses200DTO,
   })
   @ApiInternalServerErrorResponse({ description: 'Internal Server Error' })
-  async findAll(
-    @Query('page') page: number = 1,
-    @Query('limit') limit: number = 10,
-  ) {
-    return this.membersService.findAll(page, limit);
+  async findAll(@Query() queryParams: AllQueryParams) {
+    return this.membersService.findAll(queryParams);
   }
 
   @Get(':id')
@@ -95,7 +111,12 @@ export class MembersController {
     description: 'Member found.',
     type: MemberResponse200DTO,
   })
-  @ApiNotFoundResponse({ description: 'Member not found' })
+  @ApiResponse({
+    status: 404,
+    description: 'Not found.',
+    type: ErrorResponseDTO,
+  })
+  // @ApiNotFoundResponse({ description: 'Member not found' })
   @ApiParam({ name: 'id', description: 'ID of the member' })
   @ApiInternalServerErrorResponse({ description: 'Internal Server Error' })
   findOne(@Param('id') id: string) {
@@ -104,7 +125,6 @@ export class MembersController {
 
   @Put(':id')
   @ApiOperation({ summary: 'Update a member by ID' })
-  @ApiBody({ type: UpdateMemberDto })
   @ApiResponse({
     status: 200,
     description: 'Member successfully updated.',
@@ -112,12 +132,13 @@ export class MembersController {
   })
   @ApiNotFoundResponse({ description: 'Member not found' })
   @ApiBadRequestResponse({ description: 'Bad Request' })
-  @ApiParam({ name: 'id', description: 'ID of the member' })
   @ApiInternalServerErrorResponse({ description: 'Internal Server Error' })
+  @ApiBody({ type: UpdateMemberDto })
+  @ApiParam({ name: 'id', description: 'ID of the member' })
   update(
     @Param('id') id: string,
     @Body() updateMemberDto: UpdateMemberDto,
-  ): Promise<SuccessResponse<UpdateMemberDto>> {
+  ): Promise<SuccessResponse<MemberResponseDto>> {
     return this.membersService.update(+id, updateMemberDto);
   }
 
@@ -133,5 +154,15 @@ export class MembersController {
   @ApiInternalServerErrorResponse({ description: 'Internal Server Error' })
   softDelete(@Param('id') id: string): Promise<DeleteMemberResponseDTO> {
     return this.membersService.softDelete(+id);
+  }
+
+  @Get('login/:documentNumber')
+  async getMemberForLogin(
+    @Param('documentNumber') documentNumber: string,
+  ): Promise<Members> {
+    const member = await this.membersService.getMemberForLogin({
+      documentNumber,
+    });
+    return member;
   }
 }

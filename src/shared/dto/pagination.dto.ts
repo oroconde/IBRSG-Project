@@ -33,3 +33,30 @@ export class PaginationResponseDTO {
   })
   offset: number;
 }
+
+export class PaginateResponseModel {
+  @ApiProperty({
+    example: 1,
+  })
+  page: number;
+
+  @ApiProperty({
+    example: 4,
+  })
+  limit: number;
+
+  @ApiProperty({
+    example: 10,
+  })
+  totalPages: number;
+
+  @ApiProperty({
+    example: 100,
+  })
+  totalItems: number;
+
+  @ApiProperty({
+    example: 0,
+  })
+  offset: number;
+}

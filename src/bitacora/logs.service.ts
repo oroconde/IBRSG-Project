@@ -7,7 +7,7 @@ import { Logs } from 'src/shared/entities/Logs';
 @Injectable()
 export class LogService {
   constructor(
-    @InjectRepository(Logs, 'thvdb')
+    @InjectRepository(Logs, 'ibrsgdb')
     private readonly logsRepository: Repository<Logs>,
   ) {}
 

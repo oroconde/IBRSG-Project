@@ -1,15 +1,19 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ConfigModule } from '@nestjs/config';
-import { Members } from 'src/shared/entities/Members';
 import { MembersService } from './members.service';
 import { MembersController } from './members.controller';
-import { DocumentTypes } from 'src/shared/entities/DocumentTypes';
+import { JwtModule } from '@nestjs/jwt';
+import { Entities } from 'src/shared/entities';
+import { SharedModule } from 'src/shared/shared.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
-    TypeOrmModule.forFeature([Members, DocumentTypes], 'ibrsgdb'),
+    TypeOrmModule.forFeature([...Entities], 'ibrsgdb'),
+    JwtModule.register({
+      secret: process.env.JWT_SECRET_KEY,
+      signOptions: { expiresIn: process.env.JWT_EXPIRATION },
+    }),
+    SharedModule,
   ],
   controllers: [MembersController],
   providers: [MembersService],

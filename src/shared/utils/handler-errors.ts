@@ -1,8 +1,9 @@
-import { HttpException, HttpStatus } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { QueryFailedError } from 'typeorm';
 
+@Injectable()
 export class ErrorHandler {
-  static handleServiceError(error: unknown): void {
+  handleServiceError(error: unknown): void {
     // Manejo específico para errores HTTP
     if (error instanceof HttpException) {
       throw error;
@@ -25,7 +26,7 @@ export class ErrorHandler {
     );
   }
 
-  private static handleDatabaseError(error: QueryFailedError): HttpException {
+  private handleDatabaseError(error: QueryFailedError): HttpException {
     const driverError = error.driverError as {
       message?: string;
       code?: string;
@@ -91,27 +92,27 @@ export class ErrorHandler {
     );
   }
 
-  private static isValidationError(
-    error: unknown,
-  ): error is { name: string; message: string } {
-    return (
-      typeof error === 'object' &&
-      error !== null &&
-      'name' in error &&
-      'message' in error
-    );
-  }
+  // private isValidationError(
+  //   error: unknown,
+  // ): error is { name: string; message: string } {
+  //   return (
+  //     typeof error === 'object' &&
+  //     error !== null &&
+  //     'name' in error &&
+  //     'message' in error
+  //   );
+  // }
 
-  private static standardizeErrorMessage(message: string): string {
-    const regex = /\((\w+)\)=\(([^)]+)\)/;
-    const match = message.match(regex);
+  // private standardizeErrorMessage(message: string): string {
+  //   const regex = /\((\w+)\)=\(([^)]+)\)/;
+  //   const match = message.match(regex);
 
-    if (match) {
-      const field = match[1];
-      const value = match[2];
-      return `El dato (${field})=(${value}) ya existe en el sistema.`;
-    }
+  //   if (match) {
+  //     const field = match[1];
+  //     const value = match[2];
+  //     return `El dato (${field})=(${value}) ya existe en el sistema.`;
+  //   }
 
-    return message;
-  }
+  //   return message;
+  // }
 }

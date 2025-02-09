@@ -3,8 +3,8 @@ import {
   IsOptional,
   IsString,
   IsEmail,
-  IsBoolean,
   IsDateString,
+  IsInt,
 } from 'class-validator';
 import { ApiProperty, PartialType } from '@nestjs/swagger';
 
@@ -21,6 +21,8 @@ export class CreateMemberDto {
     description: 'Type of member identification document',
     example: 1,
   })
+  @IsNotEmpty()
+  @IsInt()
   documentTypeId: number;
 
   @ApiProperty({

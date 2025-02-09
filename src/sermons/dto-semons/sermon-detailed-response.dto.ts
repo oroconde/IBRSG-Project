@@ -4,7 +4,7 @@ import { PaginationResponseDTO } from 'src/shared/dto/pagination.dto';
 import { Sermons } from 'src/shared/entities/Sermons';
 
 export class SermonDetailedResponse {
-  @ApiProperty()
+  @ApiProperty({ example: 1 })
   sermonId: number;
 
   @ApiProperty({ example: 'La Fe que Mueve Montañas' })
@@ -44,5 +44,5 @@ export class SermonsListResponses200DTO extends ApiResponseDTO<
   @ApiProperty({
     type: PaginationResponseDTO,
   })
-  paginacion: PaginationResponseDTO;
+  pagination: PaginationResponseDTO;
 }
