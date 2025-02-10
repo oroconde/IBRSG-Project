@@ -109,10 +109,15 @@ export class Members {
     name: 'audit_creation_date',
     nullable: true,
     default: () => 'CURRENT_TIMESTAMP',
+    select: false,
   })
   auditCreationDate: Date | null;
 
-  @Column('integer', { name: 'audit_creation_user', nullable: true })
+  @Column('integer', {
+    name: 'audit_creation_user',
+    nullable: true,
+    select: false,
+  })
   auditCreationUser: number | null;
 
   @UpdateDateColumn({
@@ -120,19 +125,29 @@ export class Members {
     name: 'audit_update_date',
     nullable: true,
     default: () => 'CURRENT_TIMESTAMP', // Usamos CURRENT_TIMESTAMP para manejar la hora actual en UTC
+    select: false,
   })
   auditUpdateDate: Date | null;
 
-  @Column('integer', { name: 'audit_update_user', nullable: true })
+  @Column('integer', {
+    name: 'audit_update_user',
+    nullable: true,
+    select: false,
+  })
   auditUpdateUser: number | null;
 
   @Column('timestamp with time zone', {
     name: 'audit_deletion_date',
     nullable: true,
+    select: false,
   })
   auditDeletionDate: Date | null;
 
-  @Column('integer', { name: 'audit_deletion_user', nullable: true })
+  @Column('integer', {
+    name: 'audit_deletion_user',
+    nullable: true,
+    select: false,
+  })
   auditDeletionUser: number | null;
 
   @Column('boolean', {

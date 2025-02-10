@@ -20,28 +20,39 @@ export class Preachers {
   @Column('timestamp with time zone', {
     name: 'audit_creation_date',
     default: () => 'CURRENT_TIMESTAMP',
+    select: false,
   })
   auditCreationDate: Date;
 
-  @Column('integer', { name: 'audit_creation_user' })
+  @Column('integer', { name: 'audit_creation_user', select: false })
   auditCreationUser: number;
 
   @Column('timestamp with time zone', {
     name: 'audit_update_date',
     default: () => 'CURRENT_TIMESTAMP',
+    select: false,
   })
   auditUpdateDate: Date;
 
-  @Column('integer', { name: 'audit_update_user', nullable: true })
+  @Column('integer', {
+    name: 'audit_update_user',
+    nullable: true,
+    select: false,
+  })
   auditUpdateUser: number | null;
 
   @Column('timestamp with time zone', {
     name: 'audit_deletion_date',
     nullable: true,
+    select: false,
   })
   auditDeletionDate: Date | null;
 
-  @Column('integer', { name: 'audit_deletion_user', nullable: true })
+  @Column('integer', {
+    name: 'audit_deletion_user',
+    nullable: true,
+    select: false,
+  })
   auditDeletionUser: number | null;
 
   @Column('boolean', { name: 'is_active', default: () => 'true' })

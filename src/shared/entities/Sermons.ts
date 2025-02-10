@@ -19,6 +19,11 @@ export class Sermons {
   @PrimaryGeneratedColumn({ type: 'integer', name: 'sermon_id' })
   sermonId: number;
 
+  @Column('integer', {
+    name: 'preacher_id',
+  })
+  preacherId: number;
+
   @Column('character varying', { name: 'sermon_name', length: 100 })
   sermonName: string;
 
@@ -38,29 +43,44 @@ export class Sermons {
     name: 'audit_creation_date',
     nullable: true,
     default: () => 'CURRENT_TIMESTAMP',
+    select: false,
   })
   auditCreationDate: Date | null;
 
-  @Column('integer', { name: 'audit_creation_user', nullable: true })
+  @Column('integer', {
+    name: 'audit_creation_user',
+    nullable: true,
+    select: false,
+  })
   auditCreationUser: number | null;
 
   @Column('timestamp with time zone', {
     name: 'audit_update_date',
     nullable: true,
     default: () => 'CURRENT_TIMESTAMP',
+    select: false,
   })
   auditUpdateDate: Date | null;
 
-  @Column('integer', { name: 'audit_update_user', nullable: true })
+  @Column('integer', {
+    name: 'audit_update_user',
+    nullable: true,
+    select: false,
+  })
   auditUpdateUser: number | null;
 
   @Column('timestamp with time zone', {
     name: 'audit_deletion_date',
     nullable: true,
+    select: false,
   })
   auditDeletionDate: Date | null;
 
-  @Column('integer', { name: 'audit_deletion_user', nullable: true })
+  @Column('integer', {
+    name: 'audit_deletion_user',
+    nullable: true,
+    select: false,
+  })
   auditDeletionUser: number | null;
 
   @Column('boolean', {
